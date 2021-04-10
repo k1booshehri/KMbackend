@@ -9,3 +9,12 @@ class User(AbstractUser):
     university = models.CharField(null=True, max_length=300)
     field_of_study = models.CharField(null=True, max_length=400)
     entry_year = models.IntegerField(null=True)
+
+
+class Post(models.Model):
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    title = models.CharField(null=True, max_length=300)
+    author = models.CharField(null=True, max_length=300)
+    publisher = models.CharField(null=True, max_length=300)
+    image = models.ImageField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now=True, auto_now_add=False)
