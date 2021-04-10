@@ -4,7 +4,7 @@ from rest_condition import And, Or, Not
 from .permissions import *
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
-from mApp.models import User
+from mApp.models import User, Post
 from mApp.serializers import UserSerializer, UpdateUserSerializer, AddPostSerializer, PostSerializer
 
 
@@ -64,3 +64,18 @@ class AddPostAPI(generics.GenericAPIView):
         return Response({
             "post": PostSerializer(post, context=self.get_serializer_context()).data
         })
+
+
+class PostAPI(generics.GenericAPIView):
+    serializer_class = PostSerializer
+
+    def get(self, request, *args, **kwargs):
+        try:
+            post = Post.objects.get(id=kwargs.get('id'))
+
+        except:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        ser = PostSerializer(post)
+
+        return Response(ser.data, status=status.HTTP_200_OK)

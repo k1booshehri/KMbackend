@@ -12,4 +12,5 @@ urlpatterns = [
     path('api/auth/logout', knox_views.LogoutView.as_view(), name='knox_logout'),
     path('users/<int:id>', views.UserProfile.as_view()),
     path('posts', views.AddPostAPI.as_view()),
+    path('posts/<int:id>', views.PostAPI.as_view()),
 ]
