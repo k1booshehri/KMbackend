@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User
+from .models import User, Post
 from django.contrib.auth import authenticate
 
 
@@ -45,3 +45,23 @@ class LoginSerializer(serializers.Serializer):
         if user and user.is_active:
             return user
         raise serializers.ValidationError("Incorrect Credentials")
+
+
+class AddPostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post
+        fields = '__all__'
+        depth = 1
+
+    def create(self, validated_data):
+        owner = User.objects.get(username=self.initial_data.get('owner'))
+        post = Post.objects.create(**validated_data, owner=owner)
+        return post
+
+
+class PostSerializer(serializers.ModelSerializer):
+    owner = UserSerializer()
+
+    class Meta:
+        model = Post
+        fields = '__all__'

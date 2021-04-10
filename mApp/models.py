@@ -11,14 +11,10 @@ class User(AbstractUser):
     entry_year = models.IntegerField(null=True)
 
 
-class Book(models.Model):
+class Post(models.Model):
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     title = models.CharField(null=True, max_length=300)
     author = models.CharField(null=True, max_length=300)
     publisher = models.CharField(null=True, max_length=300)
     image = models.ImageField(blank=True, null=True)
-
-
-class Post(models.Model):
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    book = models.ForeignKey(Book, on_delete=models.CASCADE, null=True)
     created_at = models.DateTimeField(auto_now=True, auto_now_add=False)

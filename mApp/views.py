@@ -2,10 +2,10 @@ from rest_framework.response import Response
 from rest_framework import status, generics
 from rest_condition import And, Or, Not
 from .permissions import *
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from mApp.models import User
-from mApp.serializers import UserSerializer, UpdateUserSerializer
+from mApp.serializers import UserSerializer, UpdateUserSerializer, AddPostSerializer, PostSerializer
 
 
 class UserProfile(generics.GenericAPIView):
@@ -47,3 +47,20 @@ class UserProfile(generics.GenericAPIView):
 
         except:
             return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+class AddPostAPI(generics.GenericAPIView):
+    serializer_class = PostSerializer
+    permission_classes = (IsAuthenticated, )
+
+    def post(self, request, *args, **kwargs):
+        new_data = request.data
+        new_data.update({
+            'owner': request.user
+        })
+        serializer = AddPostSerializer(data=new_data)
+        serializer.is_valid(raise_exception=True)
+        post = serializer.save()
+        return Response({
+            "post": PostSerializer(post, context=self.get_serializer_context()).data
+        })
