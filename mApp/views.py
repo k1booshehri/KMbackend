@@ -4,7 +4,7 @@ from rest_condition import And, Or, Not
 from .permissions import *
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
-from mApp.models import User, Post
+from mApp.models import User, Post, Categories
 from mApp.serializers import UserSerializer, UpdateUserSerializer, AddPostSerializer, PostSerializer
 
 
@@ -79,3 +79,15 @@ class PostAPI(generics.GenericAPIView):
         ser = PostSerializer(post)
 
         return Response(ser.data, status=status.HTTP_200_OK)
+
+
+class GetCategories(generics.GenericAPIView):
+    def get(self, request, **kwargs):
+        new_data = request.data
+        counter = 1
+
+        for category in Categories:
+            new_data.update({str(category).split('.')[1]: category.value})
+            counter += 1
+
+        return Response(new_data, status=status.HTTP_200_OK)
