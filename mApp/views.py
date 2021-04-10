@@ -1,11 +1,18 @@
 from rest_framework.response import Response
 from rest_framework import status, generics
+from rest_condition import And, Or, Not
+from .permissions import *
+from rest_framework.permissions import AllowAny
 
 from mApp.models import User
 from mApp.serializers import UserSerializer, UpdateUserSerializer
 
 
 class UserProfile(generics.GenericAPIView):
+    permission_classes = [Or(And(IsGetRequest, AllowAny),
+                             And(IsPutRequest, IsOwner),
+                             And(IsDeleteRequest, IsOwner))]
+
     def get(self, request, **kwargs):
         try:
             user = User.objects.get(id=kwargs.get('id'))
