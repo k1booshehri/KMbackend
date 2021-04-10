@@ -1,4 +1,5 @@
 .idea/
+uploaded_media/
 
 # Created by https://www.toptal.com/developers/gitignore/api/venv,python,django,vscode,pycharm,database,sublimetext,visualstudiocode,windows,macos
 # Edit at https://www.toptal.com/developers/gitignore?templates=venv,python,django,vscode,pycharm,database,sublimetext,visualstudiocode,windows,macos
