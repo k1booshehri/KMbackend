@@ -11,8 +11,8 @@ from mApp.serializers import UserSerializer, UpdateUserSerializer, AddPostSerial
 
 class UserProfile(generics.GenericAPIView):
     permission_classes = [Or(And(IsGetRequest, AllowAny),
-                             And(IsPutRequest, IsOwner),
-                             And(IsDeleteRequest, IsOwner))]
+                             And(IsPutRequest, IsAccountOwner),
+                             And(IsDeleteRequest, IsAccountOwner))]
 
     def get(self, request, **kwargs):
         try:
@@ -89,6 +89,9 @@ def validate_categories(categories):
 
 class PostAPI(generics.GenericAPIView):
     serializer_class = PostSerializer
+    permission_classes = [Or(And(IsGetRequest, AllowAny),
+                             And(IsPutRequest, IsPostOwner),
+                             And(IsDeleteRequest, IsPostOwner))]
 
     def get(self, request, *args, **kwargs):
         try:

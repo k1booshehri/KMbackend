@@ -1,8 +1,22 @@
 from rest_framework import permissions
-from .models import User
+from .models import User, Post
 
 
-class IsOwner(permissions.BasePermission):
+class IsPostOwner(permissions.BasePermission):
+    def has_permission(self, request, view, **kwargs):
+        try:
+            post = Post.objects.get(id=view.kwargs.get('id'))
+        except:
+            return False
+
+        if not request.user.username == post.owner.username:
+            return False
+
+        else:
+            return True
+
+
+class IsAccountOwner(permissions.BasePermission):
     def has_permission(self, request, view, **kwargs):
         try:
             user = User.objects.get(id=view.kwargs.get('id'))
