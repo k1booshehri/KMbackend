@@ -58,6 +58,12 @@ class AddPostSerializer(serializers.ModelSerializer):
         post = Post.objects.create(**validated_data, owner=owner)
         return post
 
+    def update(self, instance, validated_data):
+        obj = super().update(instance, validated_data)
+        obj.save()
+        return obj
+
+
 
 class PostSerializer(serializers.ModelSerializer):
     owner = UserSerializer()

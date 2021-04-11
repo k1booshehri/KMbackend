@@ -101,6 +101,21 @@ class PostAPI(generics.GenericAPIView):
 
         return Response(ser.data, status=status.HTTP_200_OK)
 
+    def put(self, request, *args, **kwargs):
+
+        if request.data.get('categories') is not None and\
+                not validate_categories(request.data.get('categories').split('$')):
+            return Response({'error': 'Invalid categories'})
+
+        serializer = AddPostSerializer(data=request.data)
+        post = Post.objects.get(id=kwargs.get('id'))
+        request.data.update({'owner': User.objects.get(id=post.owner.id)})
+        serializer.is_valid(raise_exception=True)
+        updated_post = serializer.update(instance=post, validated_data=request.data)
+        return Response({
+            "event": PostSerializer(updated_post, context=self.get_serializer_context()).data
+        })
+
 
 class GetCategories(generics.GenericAPIView):
     def get(self, request, **kwargs):
