@@ -18,6 +18,7 @@ class Post(models.Model):
     author = models.CharField(null=True, max_length=300)
     publisher = models.CharField(null=True, max_length=300)
     image = models.ImageField(blank=True, null=True)
+    categories = models.CharField(null=True, max_length=500)
     created_at = models.DateTimeField(auto_now=True, auto_now_add=False)
 
 
