@@ -3,8 +3,9 @@ from rest_framework import status, generics
 from rest_condition import And, Or, Not
 from .permissions import *
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from enum import Enum
 
-from mApp.models import User, Post
+from mApp.models import User, Post, Categories
 from mApp.serializers import UserSerializer, UpdateUserSerializer, AddPostSerializer, PostSerializer
 
 
@@ -54,9 +55,12 @@ class AddPostAPI(generics.GenericAPIView):
     permission_classes = (IsAuthenticated, )
 
     def post(self, request, *args, **kwargs):
+        if not validate_categories(request.data.get('categories').split('$')):
+            return Response({'error': 'Invalid categories'})
+
         new_data = request.data
         new_data.update({
-            'owner': request.user
+            'owner': request.user,
         })
         serializer = AddPostSerializer(data=new_data)
         serializer.is_valid(raise_exception=True)
@@ -64,6 +68,23 @@ class AddPostAPI(generics.GenericAPIView):
         return Response({
             "post": PostSerializer(post, context=self.get_serializer_context()).data
         })
+
+
+def validate_categories(categories):
+    is_valid = False
+    for req_category in categories:
+        for category in Categories:
+            if str(category).split('.')[1] == req_category:
+                is_valid = True
+                break
+
+        if is_valid:
+            is_valid = False
+
+        else:
+            return False
+
+    return True
 
 
 class PostAPI(generics.GenericAPIView):
@@ -79,3 +100,15 @@ class PostAPI(generics.GenericAPIView):
         ser = PostSerializer(post)
 
         return Response(ser.data, status=status.HTTP_200_OK)
+
+
+class GetCategories(generics.GenericAPIView):
+    def get(self, request, **kwargs):
+        new_data = request.data
+        counter = 1
+
+        for category in Categories:
+            new_data.update({str(category).split('.')[1]: category.value})
+            counter += 1
+
+        return Response(new_data, status=status.HTTP_200_OK)

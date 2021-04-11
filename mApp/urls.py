@@ -2,7 +2,6 @@ from django.urls import path, include
 from . import views
 from .api import RegisterAPI, LoginAPI, UserAPI
 from knox import views as knox_views
-from rest_framework.urlpatterns import format_suffix_patterns
 
 urlpatterns = [
     path('api/auth', include('knox.urls')),
@@ -13,4 +12,5 @@ urlpatterns = [
     path('users/<int:id>', views.UserProfile.as_view()),
     path('posts', views.AddPostAPI.as_view()),
     path('posts/<int:id>', views.PostAPI.as_view()),
+    path('categories', views.GetCategories.as_view()),
 ]
