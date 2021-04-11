@@ -116,6 +116,10 @@ class PostAPI(generics.GenericAPIView):
             "event": PostSerializer(updated_post, context=self.get_serializer_context()).data
         })
 
+    def delete(self, request, *args, **kwargs):
+        Post.objects.get(id=kwargs.get('id')).delete()
+        return Response(status=status.HTTP_200_OK)
+
 
 class GetCategories(generics.GenericAPIView):
     def get(self, request, **kwargs):
