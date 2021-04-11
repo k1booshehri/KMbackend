@@ -11,8 +11,8 @@ from mApp.serializers import UserSerializer, UpdateUserSerializer, AddPostSerial
 
 class UserProfile(generics.GenericAPIView):
     permission_classes = [Or(And(IsGetRequest, AllowAny),
-                             And(IsPutRequest, IsOwner),
-                             And(IsDeleteRequest, IsOwner))]
+                             And(IsPutRequest, IsAccountOwner),
+                             And(IsDeleteRequest, IsAccountOwner))]
 
     def get(self, request, **kwargs):
         try:
@@ -89,6 +89,9 @@ def validate_categories(categories):
 
 class PostAPI(generics.GenericAPIView):
     serializer_class = PostSerializer
+    permission_classes = [Or(And(IsGetRequest, AllowAny),
+                             And(IsPutRequest, IsPostOwner),
+                             And(IsDeleteRequest, IsPostOwner))]
 
     def get(self, request, *args, **kwargs):
         try:
@@ -100,6 +103,25 @@ class PostAPI(generics.GenericAPIView):
         ser = PostSerializer(post)
 
         return Response(ser.data, status=status.HTTP_200_OK)
+
+    def put(self, request, *args, **kwargs):
+
+        if request.data.get('categories') is not None and\
+                not validate_categories(request.data.get('categories').split('$')):
+            return Response({'error': 'Invalid categories'})
+
+        serializer = AddPostSerializer(data=request.data)
+        post = Post.objects.get(id=kwargs.get('id'))
+        request.data.update({'owner': User.objects.get(id=post.owner.id)})
+        serializer.is_valid(raise_exception=True)
+        updated_post = serializer.update(instance=post, validated_data=request.data)
+        return Response({
+            "event": PostSerializer(updated_post, context=self.get_serializer_context()).data
+        })
+
+    def delete(self, request, *args, **kwargs):
+        Post.objects.get(id=kwargs.get('id')).delete()
+        return Response(status=status.HTTP_200_OK)
 
 
 class GetCategories(generics.GenericAPIView):
