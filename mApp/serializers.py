@@ -22,6 +22,12 @@ class UpdateUserSerializer(serializers.ModelSerializer):
         return obj
 
 
+class ChangePasswordSerializer(serializers.Serializer):
+    model = User
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+
+
 class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -62,7 +68,6 @@ class AddPostSerializer(serializers.ModelSerializer):
         obj = super().update(instance, validated_data)
         obj.save()
         return obj
-
 
 
 class PostSerializer(serializers.ModelSerializer):
