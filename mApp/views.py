@@ -6,7 +6,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from enum import Enum
 
 from mApp.models import User, Post, Categories
-from mApp.serializers import UserSerializer, UpdateUserSerializer, AddPostSerializer, PostSerializer
+from mApp.serializers import UserSerializer, UpdateUserSerializer, AddPostSerializer, PostSerializer, \
+    ChangePasswordSerializer
 
 
 class UserProfile(generics.GenericAPIView):
@@ -48,6 +49,36 @@ class UserProfile(generics.GenericAPIView):
 
         except:
             return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+class ChangePasswordView(generics.UpdateAPIView):
+    serializer_class = ChangePasswordSerializer
+    model = User
+    permission_classes = (IsAuthenticated, IsAccountOwner)
+
+    def get_object(self, queryset=None):
+        self.request.data.update({'id': self.kwargs.get('id')})
+        obj = self.request.user
+        return obj
+
+    def update(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            if not self.object.check_password(serializer.data.get("old_password")):
+                return Response({"old_password": ["Wrong password."]}, status=status.HTTP_400_BAD_REQUEST)
+            self.object.set_password(serializer.data.get("new_password"))
+            self.object.save()
+            response = {
+                'status': 'success',
+                'code': status.HTTP_200_OK,
+                'message': 'Password updated successfully',
+                'data': []
+            }
+
+            return Response(response)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class AddPostAPI(generics.GenericAPIView):
