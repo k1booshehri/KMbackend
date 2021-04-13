@@ -1,7 +1,11 @@
 from rest_framework import generics, permissions, viewsets
 from rest_framework.response import Response
 from knox.models import AuthToken
-from .serializers import UserSerializer,RegisterSerializer,LoginSerializer
+from .serializers import UserSerializer,RegisterSerializer,LoginSerializer,PostSerializer
+from .models import Post
+from django.db.models import Q
+import operator
+import functools
 
 
 class RegisterAPI(generics.GenericAPIView):
@@ -38,3 +42,26 @@ class UserAPI(generics.RetrieveAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class FilterAPI(generics.ListAPIView):
+
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+
+    def get_queryset(self):
+        queryset = Post.objects.all()
+        cat = self.request.GET.get('category', None)
+        if cat is not None:
+            cat = cat.split("$")
+            qset = functools.reduce(operator.__or__, [Q(categories__icontains=query) | Q(categories__icontains=query) for query in cat])
+            queryset = queryset.filter(qset).distinct()
+        name = self.request.GET.get('contains', None)
+        if name is not None:
+            name = name.split()
+            qset1 = functools.reduce(operator.__or__, [Q(title__icontains=query) | Q(
+                author__icontains=query) for query in name])
+
+            queryset = queryset.filter(qset1).distinct()
+
+        return queryset

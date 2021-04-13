@@ -1,6 +1,6 @@
 from django.urls import path, include
 from . import views
-from .api import RegisterAPI, LoginAPI, UserAPI
+from .api import RegisterAPI, LoginAPI, UserAPI,FilterAPI
 from knox import views as knox_views
 
 urlpatterns = [
@@ -13,4 +13,5 @@ urlpatterns = [
     path('posts', views.AddPostAPI.as_view()),
     path('posts/<int:id>', views.PostAPI.as_view()),
     path('categories', views.GetCategories.as_view()),
+    path('api/filter/',FilterAPI.as_view()),
 ]
