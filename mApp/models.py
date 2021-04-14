@@ -17,6 +17,13 @@ class Post(models.Model):
     title = models.CharField(null=True, max_length=300)
     author = models.CharField(null=True, max_length=300)
     publisher = models.CharField(null=True, max_length=300)
+    price = models.IntegerField(null=True, max_length=7)
+    province = models.CharField(null=True, max_length=100)
+    city = models.CharField(null=True, max_length=100)
+    zone = models.CharField(null=True, max_length=100)
+    status = models.CharField(null=True, max_length=100)
+    description = models.CharField(null=True, max_length=100)
+    is_active = models.BooleanField(null=True)
     image = models.ImageField(blank=True, null=True)
     categories = models.CharField(null=True, max_length=500)
     created_at = models.DateTimeField(auto_now=True, auto_now_add=False)
@@ -27,3 +34,10 @@ class Categories(Enum):
     BasicSciences = 'علوم پایه'
     CE = 'مهندسی کامپیوتر'
     IslamicTeachings = 'معارف'
+
+
+class PostStatus(Enum):
+    status1 = 'sell'
+    status2 = 'buy'
+    status3 = 'exchange'
+    status4 = 'donation'
