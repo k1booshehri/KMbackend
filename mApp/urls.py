@@ -13,6 +13,7 @@ urlpatterns = [
     path('users/<int:id>/change-password', views.ChangePasswordView.as_view(), name='password-update'),
     path('posts', views.AddPostAPI.as_view()),
     path('posts/<int:id>', views.PostAPI.as_view()),
+    path('posts/status', views.GetPostStatus.as_view()),
     path('categories', views.GetCategories.as_view()),
     path('api/filter/',FilterAPI.as_view()),
 ]

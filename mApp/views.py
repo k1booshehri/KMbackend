@@ -5,7 +5,7 @@ from .permissions import *
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from enum import Enum
 
-from mApp.models import User, Post, Categories
+from mApp.models import User, Post, Categories, PostStatus
 from mApp.serializers import UserSerializer, UpdateUserSerializer, AddPostSerializer, PostSerializer, \
     ChangePasswordSerializer
 
@@ -162,6 +162,18 @@ class GetCategories(generics.GenericAPIView):
 
         for category in Categories:
             new_data.update({str(category).split('.')[1]: category.value})
+            counter += 1
+
+        return Response(new_data, status=status.HTTP_200_OK)
+
+
+class GetPostStatus(generics.GenericAPIView):
+    def get(self, request, **kwargs):
+        new_data = request.data
+        counter = 1
+
+        for s in PostStatus:
+            new_data.update({str(s).split('.')[1]: s.value})
             counter += 1
 
         return Response(new_data, status=status.HTTP_200_OK)
