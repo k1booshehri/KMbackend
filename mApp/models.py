@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from enum import Enum
 
 
 class User(AbstractUser):
@@ -17,7 +16,7 @@ class Post(models.Model):
     title = models.CharField(null=True, max_length=300)
     author = models.CharField(null=True, max_length=300)
     publisher = models.CharField(null=True, max_length=300)
-    price = models.IntegerField(null=True, max_length=7)
+    price = models.IntegerField(null=True)
     province = models.CharField(null=True, max_length=100)
     city = models.CharField(null=True, max_length=100)
     zone = models.CharField(null=True, max_length=100)
@@ -27,17 +26,3 @@ class Post(models.Model):
     image = models.ImageField(blank=True, null=True)
     categories = models.CharField(null=True, max_length=500)
     created_at = models.DateTimeField(auto_now=True, auto_now_add=False)
-
-
-class Categories(Enum):
-    Mathematics = 'ریاضی'
-    BasicSciences = 'علوم پایه'
-    CE = 'مهندسی کامپیوتر'
-    IslamicTeachings = 'معارف'
-
-
-class PostStatus(Enum):
-    status1 = 'sell'
-    status2 = 'buy'
-    status3 = 'exchange'
-    status4 = 'donation'
