@@ -56,8 +56,6 @@ class FilterAPI(generics.ListAPIView):
         myprovince = self.request.GET.get('province', None)
         mycity = self.request.GET.get('city', None)
 
-
-
         if mypricestart is not None:
             queryset = queryset.filter(price__gt=mypricestart)
         if mypriceend is not None:
@@ -65,7 +63,7 @@ class FilterAPI(generics.ListAPIView):
         if myprovince is not None:
             queryset = queryset.filter(province=myprovince)
         if mycity is not None:
-            queryset = queryset.filter(city=mycity)            
+            queryset = queryset.filter(city=mycity)
 
         cat = self.request.GET.get('category', None)
         if cat is not None:
@@ -76,9 +74,15 @@ class FilterAPI(generics.ListAPIView):
         name = self.request.GET.get('contains', None)
         if name is not None:
             name = name.split()
-            qset1 = functools.reduce(operator.__or__, [Q(publisher__icontains=query)|Q(title__icontains=query) | Q(
-                author__icontains=query) for query in name])
+            qset1 = functools.reduce(operator.__or__, [Q(publisher__icontains=query) |
+                                                       Q(title__icontains=query) |
+                                                       Q(author__icontains=query) for query in name])
 
             queryset = queryset.filter(qset1).distinct()
+
+        sort_by = self.request.GET.get('sort', None)
+        if sort_by is not None:
+            if sort_by == 'price':
+                queryset = queryset.order_by('-price').reverse()
 
         return queryset
