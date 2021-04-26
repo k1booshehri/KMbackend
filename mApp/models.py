@@ -26,3 +26,5 @@ class Post(models.Model):
     image = models.ImageField(blank=True, null=True)
     categories = models.CharField(null=True, max_length=500)
     created_at = models.DateTimeField(auto_now=True, auto_now_add=False)
+    def get_city(self):
+        return self.title + ' is in ' + self.city + ' city.'
