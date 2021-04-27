@@ -15,5 +15,5 @@ urlpatterns = [
     path('users/<int:id>/change-password', views.ChangePasswordView.as_view(), name='password-update'),
     path('posts', views.AddPostAPI.as_view()),
     path('posts/<int:id>', views.PostAPI.as_view()),
-    path('api/filter/', FilterAPI.as_view(),name='getitems'),
+    path('api/filter/', FilterAPI.as_view(), name='getitems'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

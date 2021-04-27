@@ -29,3 +29,8 @@ class Post(models.Model):
 
     def get_city(self):
         return self.title + ' is in ' + self.city + ' city.'
+
+
+class Bid(models.Model):
+    offered_price = models.IntegerField(null=True, max_length=8)
+    description = models.CharField(null=True, max_length=500)
