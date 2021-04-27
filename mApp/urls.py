@@ -16,6 +16,7 @@ urlpatterns = [
     path('posts', views.AddPostAPI.as_view()),
     path('posts/<int:id>', views.PostAPI.as_view()),
     path('posts/<int:id>/bids', views.PostBidsAPI.as_view()),
-    path('bid', views.AddBidAPI.as_view()),
+    path('bids', views.AddBidAPI.as_view()),
+    path('bids/<int:id>', views.BidAPI.as_view()),
     path('api/filter/', FilterAPI.as_view(), name='getitems'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

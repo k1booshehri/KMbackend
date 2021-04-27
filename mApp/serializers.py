@@ -86,6 +86,7 @@ class AddBidSerializer(serializers.ModelSerializer):
 
 class BidSerializer(serializers.ModelSerializer):
     post = PostSerializer()
+    owner = UserSerializer()
 
     class Meta:
         model = Bid

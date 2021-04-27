@@ -137,12 +137,23 @@ class AddBidAPI(generics.GenericAPIView):
     def post(self, request, *args, **kwargs):
         new_data = request.data
         new_data.update({
-            'owner': request.user,
+            'owner': request.user.id,
         })
         serializer = AddBidSerializer(data=new_data)
         serializer.is_valid(raise_exception=True)
         bid = serializer.save()
         return Response(BidSerializer(bid, context=self.get_serializer_context()).data)
+
+
+class BidAPI(generics.GenericAPIView):
+    permission_classes = [IsBidOwner]
+
+    def delete(self, request, *args, **kwargs):
+        try:
+            Bid.objects.get(id=kwargs.get('id')).delete()
+            return Response(status=status.HTTP_200_OK)
+        except:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
 
 class PostBidsAPI(generics.GenericAPIView):
@@ -154,7 +165,7 @@ class PostBidsAPI(generics.GenericAPIView):
         except:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-        ser = BidSerializer(bid, many=True`)
+        ser = BidSerializer(bid, many=True)
 
         return Response(ser.data, status=status.HTTP_200_OK)
 

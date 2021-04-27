@@ -33,5 +33,6 @@ class Post(models.Model):
 
 class Bid(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, null=True)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     offered_price = models.IntegerField(null=True, max_length=8)
     description = models.CharField(null=True, max_length=500)
