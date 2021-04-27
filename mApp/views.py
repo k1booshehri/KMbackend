@@ -5,7 +5,7 @@ from .permissions import *
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from enum import Enum
 
-from mApp.models import User, Post
+from mApp.models import User, Post, Bid
 from mApp.serializers import UserSerializer, UpdateUserSerializer, AddPostSerializer, PostSerializer, \
     ChangePasswordSerializer, BidSerializer, AddBidSerializer
 
@@ -143,3 +143,18 @@ class AddBidAPI(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         bid = serializer.save()
         return Response(BidSerializer(bid, context=self.get_serializer_context()).data)
+
+
+class PostBidsAPI(generics.GenericAPIView):
+    def get(self, request, *args, **kwargs):
+        try:
+            post = Post.objects.get(id=kwargs.get('id'))
+            bid = Bid.objects.filter(post=post)
+
+        except:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        ser = BidSerializer(bid, many=True`)
+
+        return Response(ser.data, status=status.HTTP_200_OK)
+
