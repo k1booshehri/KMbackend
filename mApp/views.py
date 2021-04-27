@@ -7,7 +7,7 @@ from enum import Enum
 
 from mApp.models import User, Post
 from mApp.serializers import UserSerializer, UpdateUserSerializer, AddPostSerializer, PostSerializer, \
-    ChangePasswordSerializer
+    ChangePasswordSerializer, BidSerializer, AddBidSerializer
 
 
 class UserProfile(generics.GenericAPIView):
@@ -128,3 +128,18 @@ class PostAPI(generics.GenericAPIView):
     def delete(self, request, *args, **kwargs):
         Post.objects.get(id=kwargs.get('id')).delete()
         return Response(status=status.HTTP_200_OK)
+
+
+class AddBidAPI(generics.GenericAPIView):
+    serializer_class = AddBidSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request, *args, **kwargs):
+        new_data = request.data
+        new_data.update({
+            'owner': request.user,
+        })
+        serializer = AddBidSerializer(data=new_data)
+        serializer.is_valid(raise_exception=True)
+        bid = serializer.save()
+        return Response(BidSerializer(bid, context=self.get_serializer_context()).data)

@@ -78,8 +78,15 @@ class PostSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class BidSerializer(serializers.ModelSerializer):
+class AddBidSerializer(serializers.ModelSerializer):
     class Meta:
         model = Bid
         fields = '__all__'
 
+
+class BidSerializer(serializers.ModelSerializer):
+    post = PostSerializer()
+
+    class Meta:
+        model = Bid
+        fields = '__all__'
