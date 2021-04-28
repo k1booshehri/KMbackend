@@ -16,11 +16,34 @@ class TestModels(TestCase):
                             field_of_study='ce',
                             entry_year=97)
 
-        Post.objects.create(title='riazi 1 faramarzi',
+        User.objects.create(username='kayvan@gmail.com',
+                            email='kayvan@gmail.com',
+                            first_name='kayvan',
+                            last_name='bs',
+                            password='123456',
+                            phone_number=9126667558,
+                            university='iust',
+                            field_of_study='ce',
+                            entry_year=97)
+
+        Post.objects.create(owner=User.objects.get(id=1),
+                            title='riazi 1 faramarzi',
                             author='faramarzi',
                             publisher='gaj',
                             categories='math$riazi',
                             price=10000,
+                            province='tehran',
+                            zone='narmak',
+                            status='sell',
+                            description='some description',
+                            is_active=True)
+
+        Post.objects.create(owner=User.objects.get(id=1),
+                            title='riazi 2 faramarzi',
+                            author='faramarzi',
+                            publisher='gaj',
+                            categories='math$riazi',
+                            price=23000,
                             province='tehran',
                             zone='narmak',
                             status='sell',
@@ -42,9 +65,9 @@ class TestModels(TestCase):
 
     def test_bid_owner_and_post(self):
         b1 = Bid.objects.create(post=Post.objects.get(id=1),
-                                owner=User.objects.get(id=1),
+                                owner=User.objects.get(id=2),
                                 offered_price=9000,
                                 description='some random description')
 
-        self.assertEqual(b1.owner, User.objects.get(id=1))
+        self.assertEqual(b1.owner, User.objects.get(id=2))
         self.assertEqual(b1.post, Post.objects.get(id=1))
