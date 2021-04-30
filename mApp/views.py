@@ -135,7 +135,7 @@ class AddBidAPI(generics.GenericAPIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request, *args, **kwargs):
-        new_data = request.data
+        new_data = request.data.copy()
         new_data.update({
             'owner': request.user.id,
         })

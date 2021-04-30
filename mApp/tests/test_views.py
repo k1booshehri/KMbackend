@@ -14,40 +14,44 @@ class GetAllPuppiesTest(TestCase):
 
     def setUp(self):
         client = Client()
+        self.login_url = reverse('login')
+        self.signup_url = reverse('signup')
         self.add_bid_url = reverse('add-bid')
         self.bid_url = reverse('bid-api', args='1')
         self.post_bids_url = reverse('post-bids', args='1')
 
-        User.objects.create(username='masih@gmail.com',
-                            email='masih@gmail.com',
-                            first_name='masih',
-                            last_name='bn',
-                            password='123456',
-                            phone_number=9125557558,
-                            university='iust',
-                            field_of_study='ce',
-                            entry_year=97)
+        client.post(self.signup_url, {
+            "username": "mrBn@gmail.com",
+            "email": "mrBn@gmail.com",
+            "first_name": "masih",
+            "last_name": "bahmani",
+            "password": "123456",
+            "phone_number": "56662148951",
+            "university": "iust",
+            "field_of_study": "CE",
+            "entry_year": "97"
+        })
 
         Post.objects.create(owner=User.objects.get(id=1),
                             title='riazi 1 faramarzi',
                             author='faramarzi',
                             publisher='gaj',
                             categories='math$riazi',
-                            price=10000,
+                            price="10000",
                             province='tehran',
                             zone='narmak',
                             status='sell',
                             description='some description',
-                            is_active=True)
+                            is_active="True")
 
         Bid.objects.create(post=Post.objects.get(id=1),
                            owner=User.objects.get(id=1),
-                           offered_price=9000,
+                           offered_price="9000",
                            description='some random description')
 
         Bid.objects.create(post=Post.objects.get(id=1),
                            owner=User.objects.get(id=1),
-                           offered_price=19000,
+                           offered_price="19000",
                            description='some other random description')
 
         Post.objects.create(title='SE modern approach', categories=3, city='tehran')
@@ -66,3 +70,25 @@ class GetAllPuppiesTest(TestCase):
         response = self.client.get(self.post_bids_url)
 
         self.assertEqual(response.status_code, 200)
+
+    def test_add_bids_POST(self):
+        login_info = self.client.post(self.login_url, {
+            "username": "mrBn@gmail.com",
+            "password": "123456",
+        })
+        response = self.client.post(self.add_bid_url, {
+                                        "title": "AP book",
+                                        "author": "someone",
+                                        "publisher": "gaj",
+                                        "categories": "ce",
+                                        "price": 1000,
+                                        "province": "tehran",
+                                        "city": "tehran",
+                                        "zone": "narmak",
+                                        "status": "status2",
+                                        "description": "Some random description",
+                                        "is_active": True
+                                    },
+                                    HTTP_AUTHORIZATION='token ' + login_info.json()['token'])
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(1, 1)
