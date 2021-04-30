@@ -1,6 +1,6 @@
 from django.urls import path, include
 from . import views
-from .api import RegisterAPI, LoginAPI, UserAPI,FilterAPI
+from .api import RegisterAPI, LoginAPI, UserAPI,FilterAPI,MyPostsAPI
 from knox import views as knox_views
 from django.conf import settings
 from django.conf.urls.static import static
@@ -16,4 +16,5 @@ urlpatterns = [
     path('posts', views.AddPostAPI.as_view()),
     path('posts/<int:id>', views.PostAPI.as_view()),
     path('api/filter/', FilterAPI.as_view(),name='getitems'),
+    path('api/posts/myposts',MyPostsAPI.as_view(),name='myposts')
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
