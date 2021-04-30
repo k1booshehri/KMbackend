@@ -92,3 +92,26 @@ class GetAllPuppiesTest(TestCase):
                                     HTTP_AUTHORIZATION='token ' + login_info.json()['token'])
         self.assertEqual(response.status_code, 200)
         self.assertEqual(1, 1)
+
+    def test_bids_DELETE(self):
+        login_info = self.client.post(self.login_url, {
+            "username": "mrBn@gmail.com",
+            "password": "123456",
+        })
+        response = self.client.post(self.add_bid_url, {
+                                        "title": "AP book",
+                                        "author": "someone",
+                                        "publisher": "gaj",
+                                        "categories": "ce",
+                                        "price": 1000,
+                                        "province": "tehran",
+                                        "city": "tehran",
+                                        "zone": "narmak",
+                                        "status": "status2",
+                                        "description": "Some random description",
+                                        "is_active": True
+                                    },
+                                    HTTP_AUTHORIZATION='token ' + login_info.json()['token'])
+        response = self.client.delete(self.bid_url, HTTP_AUTHORIZATION='token ' + login_info.json()['token'])
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(1, 1)
