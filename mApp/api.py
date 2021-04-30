@@ -86,3 +86,14 @@ class FilterAPI(generics.ListAPIView):
                 queryset = queryset.order_by('-price').reverse()
 
         return queryset
+
+class MyPostsAPI(generics.ListAPIView):
+
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+
+    def get_queryset(self):
+        user=self.request.user
+        queryset = Post.objects.all()
+        queryset = queryset.filter(owner=user)
+        return queryset
