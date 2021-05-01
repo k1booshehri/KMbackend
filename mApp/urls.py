@@ -18,5 +18,6 @@ urlpatterns = [
     path('posts/<int:id>/bids', views.PostBidsAPI.as_view(), name='post-bids'),
     path('bids', views.AddBidAPI.as_view(), name='add-bid'),
     path('bids/<int:id>', views.BidAPI.as_view(), name='bid-api'),
+    path('bids/<int:id>/accept', views.AcceptBidAPI.as_view(), name='accept-bid-api'),
     path('api/filter/', FilterAPI.as_view(), name='getitems'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

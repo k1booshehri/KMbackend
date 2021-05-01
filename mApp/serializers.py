@@ -83,6 +83,11 @@ class AddBidSerializer(serializers.ModelSerializer):
         model = Bid
         fields = '__all__'
 
+    def update(self, instance, validated_data):
+        obj = super().update(instance, validated_data)
+        obj.save()
+        return obj
+
 
 class BidSerializer(serializers.ModelSerializer):
     post = PostSerializer()

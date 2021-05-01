@@ -100,16 +100,10 @@ class GetAllPuppiesTest(TestCase):
 
     def test_bids_DELETE(self):
         login_bid_owner = self.client.post(self.login_url, {
-            "username": "k1@gmail.com",
+            "username": "mrBn@gmail.com",
             "password": "123456",
         })
-        self.client.post(self.add_bid_url, {
-                "post": 1,
-                "offered_price": 10000,
-                "description": "wanna buy this"
-        },
-            HTTP_AUTHORIZATION='token ' + login_bid_owner.json()['token'])
 
-        response = self.client.delete(self.bid_url)
+        response = self.client.delete(self.bid_url, HTTP_AUTHORIZATION='token ' + login_bid_owner.json()['token'])
 
         self.assertEqual(response.status_code, 200)
