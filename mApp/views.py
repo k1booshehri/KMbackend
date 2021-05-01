@@ -5,9 +5,9 @@ from .permissions import *
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from enum import Enum
 
-from mApp.models import User, Post
+from mApp.models import User, Post, Bid
 from mApp.serializers import UserSerializer, UpdateUserSerializer, AddPostSerializer, PostSerializer, \
-    ChangePasswordSerializer
+    ChangePasswordSerializer, BidSerializer, AddBidSerializer
 
 
 class UserProfile(generics.GenericAPIView):
@@ -86,7 +86,7 @@ class AddPostAPI(generics.GenericAPIView):
     permission_classes = (IsAuthenticated, )
 
     def post(self, request, *args, **kwargs):
-        new_data = request.data
+        new_data = request.data.copy()
         new_data.update({
             'owner': request.user,
         })
@@ -128,3 +128,57 @@ class PostAPI(generics.GenericAPIView):
     def delete(self, request, *args, **kwargs):
         Post.objects.get(id=kwargs.get('id')).delete()
         return Response(status=status.HTTP_200_OK)
+
+
+class AddBidAPI(generics.GenericAPIView):
+    serializer_class = AddBidSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request, *args, **kwargs):
+        new_data = request.data.copy()
+        new_data.update({
+            'owner': request.user.id,
+        })
+        serializer = AddBidSerializer(data=new_data)
+        serializer.is_valid(raise_exception=True)
+        bid = serializer.save()
+        return Response(BidSerializer(bid, context=self.get_serializer_context()).data)
+
+
+class BidAPI(generics.GenericAPIView):
+    permission_classes = [IsBidOwner]
+
+    def delete(self, request, *args, **kwargs):
+        try:
+            Bid.objects.get(id=kwargs.get('id')).delete()
+            return Response(status=status.HTTP_200_OK)
+        except:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+class PostBidsAPI(generics.GenericAPIView):
+    def get(self, request, *args, **kwargs):
+        try:
+            post = Post.objects.get(id=kwargs.get('id'))
+            bid = Bid.objects.filter(post=post)
+
+        except:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        ser = BidSerializer(bid, many=True)
+
+        return Response(ser.data, status=status.HTTP_200_OK)
+
+
+class AcceptBidAPI(generics.GenericAPIView):
+    permission_classes = [IsBidPostOwner]
+
+    def put(self, request, *args, **kwargs):
+        serializer = AddBidSerializer(data=request.data)
+        bid = Bid.objects.get(id=kwargs.get('id'))
+        request.data.update({'is_accepted': True})
+        serializer.is_valid(raise_exception=True)
+        updated_bid = serializer.update(instance=bid, validated_data=request.data)
+        return Response({
+            "bid": BidSerializer(updated_bid, context=self.get_serializer_context()).data
+        })

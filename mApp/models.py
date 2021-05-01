@@ -29,3 +29,11 @@ class Post(models.Model):
 
     def get_city(self):
         return self.title + ' is in ' + self.city + ' city.'
+
+
+class Bid(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, null=True)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    offered_price = models.IntegerField(null=True)
+    description = models.CharField(null=True, max_length=500)
+    is_accepted = models.BooleanField(null=True, default=False)

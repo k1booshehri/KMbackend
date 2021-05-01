@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Post
+from .models import User, Post, Bid
 from django.contrib.auth import authenticate
 
 
@@ -75,4 +75,24 @@ class PostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
+        fields = '__all__'
+
+
+class AddBidSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Bid
+        fields = '__all__'
+
+    def update(self, instance, validated_data):
+        obj = super().update(instance, validated_data)
+        obj.save()
+        return obj
+
+
+class BidSerializer(serializers.ModelSerializer):
+    post = PostSerializer()
+    owner = UserSerializer()
+
+    class Meta:
+        model = Bid
         fields = '__all__'
