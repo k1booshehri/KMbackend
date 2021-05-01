@@ -16,6 +16,7 @@ class GetAllPuppiesTest(TestCase):
         client = Client()
         self.login_url = reverse('login')
         self.signup_url = reverse('signup')
+        self.add_post_url = reverse('add-post')
         self.add_bid_url = reverse('add-bid')
         self.bid_url = reverse('bid-api', args='1')
         self.post_bids_url = reverse('post-bids', args='1')
@@ -27,6 +28,18 @@ class GetAllPuppiesTest(TestCase):
             "last_name": "bahmani",
             "password": "123456",
             "phone_number": "56662148951",
+            "university": "iust",
+            "field_of_study": "CE",
+            "entry_year": "97"
+        })
+
+        client.post(self.signup_url, {
+            "username": "k1@gmail.com",
+            "email": "k1@gmail.com",
+            "first_name": "k1",
+            "last_name": "bs",
+            "password": "123456",
+            "phone_number": "5356662148951",
             "university": "iust",
             "field_of_study": "CE",
             "entry_year": "97"
@@ -72,46 +85,31 @@ class GetAllPuppiesTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_add_bids_POST(self):
-        login_info = self.client.post(self.login_url, {
-            "username": "mrBn@gmail.com",
+        login_bid_owner = self.client.post(self.login_url, {
+            "username": "k1@gmail.com",
             "password": "123456",
         })
         response = self.client.post(self.add_bid_url, {
-                                        "title": "AP book",
-                                        "author": "someone",
-                                        "publisher": "gaj",
-                                        "categories": "ce",
-                                        "price": 1000,
-                                        "province": "tehran",
-                                        "city": "tehran",
-                                        "zone": "narmak",
-                                        "status": "status2",
-                                        "description": "Some random description",
-                                        "is_active": True
-                                    },
-                                    HTTP_AUTHORIZATION='token ' + login_info.json()['token'])
+                "post": 1,
+                "offered_price": 10000,
+                "description": "wanna buy this"
+        },
+            HTTP_AUTHORIZATION='token ' + login_bid_owner.json()['token'])
+
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(1, 1)
 
     def test_bids_DELETE(self):
-        login_info = self.client.post(self.login_url, {
-            "username": "mrBn@gmail.com",
+        login_bid_owner = self.client.post(self.login_url, {
+            "username": "k1@gmail.com",
             "password": "123456",
         })
-        response = self.client.post(self.add_bid_url, {
-                                        "title": "AP book",
-                                        "author": "someone",
-                                        "publisher": "gaj",
-                                        "categories": "ce",
-                                        "price": 1000,
-                                        "province": "tehran",
-                                        "city": "tehran",
-                                        "zone": "narmak",
-                                        "status": "status2",
-                                        "description": "Some random description",
-                                        "is_active": True
-                                    },
-                                    HTTP_AUTHORIZATION='token ' + login_info.json()['token'])
-        response = self.client.delete(self.bid_url, HTTP_AUTHORIZATION='token ' + login_info.json()['token'])
+        self.client.post(self.add_bid_url, {
+                "post": 1,
+                "offered_price": 10000,
+                "description": "wanna buy this"
+        },
+            HTTP_AUTHORIZATION='token ' + login_bid_owner.json()['token'])
+
+        response = self.client.delete(self.bid_url)
+
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(1, 1)
