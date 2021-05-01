@@ -171,12 +171,12 @@ class PostBidsAPI(generics.GenericAPIView):
 
 
 class AcceptBidAPI(generics.GenericAPIView):
-    permission_classes = IsBidPostOwner
+    permission_classes = [IsBidPostOwner]
 
     def put(self, request, *args, **kwargs):
         serializer = AddBidSerializer(data=request.data)
         bid = Bid.objects.get(id=kwargs.get('id'))
-        request.data.update({'is_accepted': bid})
+        request.data.update({'is_accepted': True})
         serializer.is_valid(raise_exception=True)
         updated_bid = serializer.update(instance=bid, validated_data=request.data)
         return Response({

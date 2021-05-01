@@ -19,6 +19,7 @@ class GetAllPuppiesTest(TestCase):
         self.add_post_url = reverse('add-post')
         self.add_bid_url = reverse('add-bid')
         self.bid_url = reverse('bid-api', args='1')
+        self.accept_bid_url = reverse('accept-bid-api', args='1')
         self.post_bids_url = reverse('post-bids', args='1')
 
         client.post(self.signup_url, {
@@ -58,7 +59,7 @@ class GetAllPuppiesTest(TestCase):
                             is_active="True")
 
         Bid.objects.create(post=Post.objects.get(id=1),
-                           owner=User.objects.get(id=1),
+                           owner=User.objects.get(id=2),
                            offered_price="9000",
                            description='some random description')
 
@@ -100,10 +101,20 @@ class GetAllPuppiesTest(TestCase):
 
     def test_bids_DELETE(self):
         login_bid_owner = self.client.post(self.login_url, {
-            "username": "mrBn@gmail.com",
+            "username": "k1@gmail.com",
             "password": "123456",
         })
 
         response = self.client.delete(self.bid_url, HTTP_AUTHORIZATION='token ' + login_bid_owner.json()['token'])
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_accept_bids(self):
+        login_post_owner = self.client.post(self.login_url, {
+            "username": "mrBn@gmail.com",
+            "password": "123456",
+        })
+
+        response = self.client.put(self.accept_bid_url, HTTP_AUTHORIZATION='token ' + login_post_owner.json()['token'])
 
         self.assertEqual(response.status_code, 200)
