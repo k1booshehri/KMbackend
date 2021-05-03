@@ -4,6 +4,7 @@ from rest_condition import And, Or, Not
 from .permissions import *
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from enum import Enum
+from .models import Notifications
 
 from mApp.models import User, Post, Bid
 from mApp.serializers import UserSerializer, UpdateUserSerializer, AddPostSerializer, PostSerializer, \
@@ -139,6 +140,8 @@ class AddBidAPI(generics.GenericAPIView):
         new_data.update({
             'owner': request.user.id,
         })
+        notifowner=Post.objects.get(id=request.data["post"]).owner
+        Notifications.objects.create(owner=notifowner,message='New Bid!',post=Post.objects.get(id=request.data["post"]))
         serializer = AddBidSerializer(data=new_data)
         serializer.is_valid(raise_exception=True)
         bid = serializer.save()

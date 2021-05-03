@@ -1,6 +1,6 @@
 from django.urls import path, include
 from . import views
-from .api import RegisterAPI, LoginAPI, UserAPI,FilterAPI,MyPostsAPI
+from .api import RegisterAPI, LoginAPI, UserAPI,FilterAPI,MyPostsAPI,NotificationsAPI
 from knox import views as knox_views
 from django.conf import settings
 from django.conf.urls.static import static
@@ -20,5 +20,6 @@ urlpatterns = [
     path('bids/<int:id>', views.BidAPI.as_view(), name='bid-api'),
     path('bids/<int:id>/accept', views.AcceptBidAPI.as_view(), name='accept-bid-api'),
     path('api/filter/', FilterAPI.as_view(),name='getitems'),
-    path('api/posts/myposts',MyPostsAPI.as_view(),name='myposts')
+    path('api/posts/myposts',MyPostsAPI.as_view(),name='myposts'),
+    path('api/notifications/getmynotifications',NotificationsAPI.as_view(),name='mynotifs')
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

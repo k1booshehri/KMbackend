@@ -2,7 +2,7 @@ import json
 from rest_framework import status
 from django.test import TestCase, Client
 from django.urls import reverse
-from ..models import Post,User
+from ..models import Post,User,Bid
 from ..serializers import PostSerializer,UserSerializer
 
 # initialize the APIClient app

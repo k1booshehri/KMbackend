@@ -37,3 +37,10 @@ class Bid(models.Model):
     offered_price = models.IntegerField(null=True)
     description = models.CharField(null=True, max_length=500)
     is_accepted = models.BooleanField(null=True, default=False)
+
+
+class Notifications(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, null=True)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    message = models.CharField(null=True, max_length=1000)
+    is_seen=models.BooleanField(default=False)
