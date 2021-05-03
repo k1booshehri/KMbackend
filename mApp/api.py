@@ -1,11 +1,12 @@
 from rest_framework import generics, permissions, viewsets
 from rest_framework.response import Response
 from knox.models import AuthToken
-from .serializers import UserSerializer, RegisterSerializer, LoginSerializer, PostSerializer
-from .models import Post
+from .serializers import UserSerializer, RegisterSerializer, LoginSerializer, PostSerializer,NotificationSerializer
+from .models import Post,Notifications
 from django.db.models import Q
 import operator
 import functools
+import copy
 
 
 class RegisterAPI(generics.GenericAPIView):
@@ -97,3 +98,13 @@ class MyPostsAPI(generics.ListAPIView):
         queryset = Post.objects.all()
         queryset = queryset.filter(owner=user)
         return queryset
+
+class NotificationsAPI(generics.ListAPIView):
+    serializer_class = NotificationSerializer
+    def get_queryset(self):
+        user=self.request.user
+        queryset = Notifications.objects.all()
+        queryset = queryset.filter(owner=user)
+        q=copy.copy(queryset)
+        queryset.update(is_seen=True)  
+        return q
