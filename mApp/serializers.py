@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Post, Bid
+from .models import User, Post, Bid,Notifications
 from django.contrib.auth import authenticate
 
 
@@ -95,4 +95,10 @@ class BidSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Bid
+        fields = '__all__'
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notifications
         fields = '__all__'
