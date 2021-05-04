@@ -179,6 +179,13 @@ class AcceptBidAPI(generics.GenericAPIView):
     def put(self, request, *args, **kwargs):
         serializer = AddBidSerializer(data=request.data)
         bid = Bid.objects.get(id=kwargs.get('id'))
+
+        post = Post.objects.get(id=bid.post.id)
+        post.is_active = False
+        serializer = AddPostSerializer(data={'post': post})
+        serializer.is_valid(raise_exception=True)
+        serializer.update(instance=post, validated_data={'post': post})
+
         request.data.update({'is_accepted': True})
         serializer.is_valid(raise_exception=True)
         updated_bid = serializer.update(instance=bid, validated_data=request.data)
