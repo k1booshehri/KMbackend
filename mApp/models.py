@@ -22,7 +22,7 @@ class Post(models.Model):
     zone = models.CharField(null=True, max_length=100)
     status = models.CharField(null=True, max_length=100)
     description = models.CharField(null=True, max_length=100)
-    is_active = models.BooleanField(null=True)
+    is_active = models.BooleanField(null=True, default=True)
     image = models.ImageField(blank=True, null=True)
     categories = models.CharField(null=True, max_length=500)
     created_at = models.DateTimeField(auto_now=True, auto_now_add=False)
