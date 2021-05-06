@@ -44,3 +44,6 @@ class Notifications(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     message = models.CharField(null=True, max_length=1000)
     is_seen=models.BooleanField(default=False)
+
+#test
+#test
