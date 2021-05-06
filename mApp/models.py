@@ -46,3 +46,4 @@ class Notifications(models.Model):
     is_seen=models.BooleanField(default=False)
 
 #test
+#test
