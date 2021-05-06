@@ -77,7 +77,7 @@ class GetAllPuppiesTest(TestCase):
         # get data from db
         p = Post.objects.all()
         serializer = PostSerializer(p, many=True)
-        self.assertEqual(response.data, serializer.data)
+        self.assertEqual(response.data['results'], serializer.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_post_bids_GET(self):
@@ -134,5 +134,5 @@ class GetMyPostsTest(TestCase):
         u=User.objects.get(username='abcd@ef.ghi')
         p=p.filter(owner=u)
         serializer = PostSerializer(p, many=True)
-        self.assertEqual(response.json(), serializer.data)
+        self.assertEqual(response.json()['results'], serializer.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
