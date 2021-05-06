@@ -13,7 +13,6 @@ jobs:
       - python/save-cache
       - run:
           command:
-            chmod +x manage.py , 
             ./manage.py test
           name: Test
 
