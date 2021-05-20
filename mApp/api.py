@@ -1,8 +1,8 @@
 from rest_framework import generics, permissions, viewsets
 from rest_framework.response import Response
 from knox.models import AuthToken
-from .serializers import UserSerializer, RegisterSerializer, LoginSerializer, PostSerializer,NotificationSerializer
-from .models import Post,Notifications
+from .serializers import UserSerializer, RegisterSerializer, LoginSerializer, PostSerializer,NotificationSerializer,BookMarkSerializer,GetMarksSerializer
+from .models import Post,Notifications,Bookmarks
 from django.db.models import Q
 import operator
 import functools
@@ -108,3 +108,23 @@ class NotificationsAPI(generics.ListAPIView):
         q=copy.copy(queryset)
         queryset.update(is_seen=True)  
         return q
+
+
+class MakeBookMarkAPI(generics.GenericAPIView):
+    serializer_class = BookMarkSerializer
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+        user=self.request.user
+        postid=data['markedpost']
+        bookmark=Bookmarks.objects.create(markedpost=postid,markedby=user)
+        return Response({"done"})
+
+class GetMarksAPI(generics.ListAPIView):
+    serializer_class =GetMarksSerializer
+    def get_queryset(self):
+        user=self.request.user
+        queryset = Bookmarks.objects.all()
+        queryset = queryset.filter(markedby=user)
+        return queryset
