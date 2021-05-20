@@ -1,6 +1,6 @@
 from django.urls import path, include
 from . import views
-from .api import RegisterAPI, LoginAPI, UserAPI,FilterAPI,MyPostsAPI,NotificationsAPI,MakeBookMarkAPI,GetMarksAPI
+from .api import RegisterAPI, LoginAPI, UserAPI,FilterAPI,MyPostsAPI,NotificationsAPI,MakeBookMarkAPI,GetMarksAPI,BidUpdateAPI
 from knox import views as knox_views
 from django.conf import settings
 from django.conf.urls.static import static
@@ -23,5 +23,6 @@ urlpatterns = [
     path('api/posts/myposts',MyPostsAPI.as_view(),name='myposts'),
     path('api/notifications/getmynotifications',NotificationsAPI.as_view(),name='mynotifs'),
     path('api/bookmarks/setmark', MakeBookMarkAPI.as_view(), name='setmark'),
-    path('api/bookmarks/getmarks', GetMarksAPI.as_view(), name='getmarks')
+    path('api/bookmarks/getmarks', GetMarksAPI.as_view(), name='getmarks'),
+    path('api/bids/edit', BidUpdateAPI.as_view(), name='editbid')
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
