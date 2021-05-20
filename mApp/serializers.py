@@ -114,6 +114,8 @@ class BookMarkSerializer(serializers.ModelSerializer):
         bookmark=Bookmarks.objects.create(markedpost=post,markedby=user)
 
 class GetMarksSerializer(serializers.ModelSerializer):
+    markedpost=PostSerializer()
+    
     class Meta:
         model = Bookmarks
         fields = '__all__'
