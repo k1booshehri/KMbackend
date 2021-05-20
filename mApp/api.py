@@ -7,6 +7,7 @@ from django.db.models import Q
 import operator
 import functools
 import copy
+from rest_framework.views import APIView
 
 
 class RegisterAPI(generics.GenericAPIView):
@@ -146,3 +147,15 @@ class BidUpdateAPI(generics.GenericAPIView):
         return Response({
             "bid updated"
         })
+
+
+class IsMarkedAPI(APIView):
+    def get(self, request, format=None):
+        postid=self.request.GET.get('postid', None)
+        user=self.request.user
+        queryset = Bookmarks.objects.all()
+        count = len(queryset.filter(markedby=user,markedpost=postid))
+        mybool=False
+        if count>0:
+            mybool=True
+        return Response(mybool)
