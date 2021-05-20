@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Post, Bid,Notifications
+from .models import User, Post, Bid,Notifications,Bookmarks
 from django.contrib.auth import authenticate
 
 
@@ -101,4 +101,19 @@ class BidSerializer(serializers.ModelSerializer):
 class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notifications
+        fields = '__all__'
+
+class BookMarkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Bookmarks
+        fields = ('markedpost',)
+    def create(self, validated_data):
+        user=self.request.user
+        postid=validated_data['markedpost']
+        post=Post.objects.get(id=postid)
+        bookmark=Bookmarks.objects.create(markedpost=post,markedby=user)
+
+class GetMarksSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Bookmarks
         fields = '__all__'
