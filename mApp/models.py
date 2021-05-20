@@ -47,3 +47,7 @@ class Notifications(models.Model):
 
 #test
 #test
+
+class Bookmarks(models.Model):
+    markedpost=models.ForeignKey(Post, on_delete=models.CASCADE, null=True)
+    markedby=models.ForeignKey(User, on_delete=models.CASCADE, null=True)
