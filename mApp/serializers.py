@@ -117,3 +117,14 @@ class GetMarksSerializer(serializers.ModelSerializer):
     class Meta:
         model = Bookmarks
         fields = '__all__'
+
+class BidUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Bid
+        fields = ('offered_price','description')
+
+    def update(self, instance, validated_data):
+        instance.offered_price = validated_data.get('offered_price', instance.offered_price)
+        instance.description = validated_data.get('description', instance.description)
+        instance.save()
+        return instance
