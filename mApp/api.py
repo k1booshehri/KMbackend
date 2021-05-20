@@ -1,8 +1,8 @@
 from rest_framework import generics, permissions, viewsets
 from rest_framework.response import Response
 from knox.models import AuthToken
-from .serializers import UserSerializer, RegisterSerializer, LoginSerializer, PostSerializer,NotificationSerializer,BookMarkSerializer,GetMarksSerializer
-from .models import Post,Notifications,Bookmarks
+from .serializers import UserSerializer, RegisterSerializer, LoginSerializer, PostSerializer,NotificationSerializer,BookMarkSerializer,GetMarksSerializer,BidUpdateSerializer
+from .models import Post,Notifications,Bookmarks,Bid
 from django.db.models import Q
 import operator
 import functools
@@ -128,3 +128,21 @@ class GetMarksAPI(generics.ListAPIView):
         queryset = Bookmarks.objects.all()
         queryset = queryset.filter(markedby=user)
         return queryset
+
+
+class BidUpdateAPI(generics.GenericAPIView):
+    permission_classes = [
+        permissions.IsAuthenticated,
+    ]
+    serializer_class = BidUpdateSerializer
+
+    def put(self, request, *args, **kwargs):
+        bidid=self.request.GET.get('bidid', None)
+        print(bidid)
+        b = Bid.objects.get(id=bidid)
+        serializer = self.get_serializer(b, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        return Response({
+            "bid updated"
+        })
