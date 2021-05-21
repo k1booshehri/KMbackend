@@ -4,7 +4,6 @@ from .api import RegisterAPI, LoginAPI, UserAPI,FilterAPI,MyPostsAPI,Notificatio
 from knox import views as knox_views
 from django.conf import settings
 from django.conf.urls.static import static
-
 urlpatterns = [
     path('api/auth', include('knox.urls')),
     path('api/auth/register', RegisterAPI.as_view(), name='signup'),
@@ -23,6 +22,8 @@ urlpatterns = [
     path('api/posts/myposts', MyPostsAPI.as_view(), name='myposts'),
     path('api/notifications/getmynotifications', NotificationsAPI.as_view(),name='mynotifs'),
     path('api/chat', views.PostChatAPI.as_view()),
-    path('api/message', views.ChatAPI.as_view()),
     path('api/chat/<int:thread_id>', views.ChatAPI.as_view()),
+    path('api/message', views.ChatAPI.as_view()),
+    path('api/message/<int:message_id>', views.MessageAPI.as_view()),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

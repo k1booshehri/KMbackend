@@ -11,6 +11,26 @@ from mApp.serializers import UserSerializer, UpdateUserSerializer, AddPostSerial
     ChangePasswordSerializer, BidSerializer, AddBidSerializer, ChatSerializer, ChatMessagesSerializer
 
 
+class MessageAPI(generics.GenericAPIView, mixins.ListModelMixin):
+    def delete(self, request, *args, **kwargs):
+        try:
+            ChatMessage.objects.get(id=kwargs.get('message_id')).delete()
+            return Response(status=status.HTTP_200_OK)
+        except:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+    def put(self, request, *args, **kwargs):
+        request.data.update({
+            'id': kwargs.get('message_id')
+        })
+        ser = ChatMessagesSerializer(data=request.data)
+        ser.is_valid(raise_exception=True)
+        ser.update(instance=ChatMessage.objects.get(id=kwargs.get('message_id')), validated_data=request.data)
+        return Response({
+            "message": ser.data
+        })
+
+
 class ChatAPI(generics.GenericAPIView, mixins.ListModelMixin):
     serializer_class = ChatMessagesSerializer
     queryset = ChatMessage.objects.all()
