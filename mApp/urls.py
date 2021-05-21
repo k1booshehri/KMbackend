@@ -23,4 +23,5 @@ urlpatterns = [
     path('api/posts/myposts', MyPostsAPI.as_view(), name='myposts'),
     path('api/notifications/getmynotifications', NotificationsAPI.as_view(),name='mynotifs'),
     path('api/chat', views.PostChatAPI.as_view()),
+    path('api/message', views.ChatAPI.as_view()),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

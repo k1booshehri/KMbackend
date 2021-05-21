@@ -1,5 +1,5 @@
 from rest_framework.response import Response
-from rest_framework import status, generics
+from rest_framework import status, generics, mixins
 from rest_condition import And, Or, Not
 from .permissions import *
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -8,7 +8,23 @@ from .models import Notifications
 
 from mApp.models import User, Post, Bid, ChatMessage, ChatThread
 from mApp.serializers import UserSerializer, UpdateUserSerializer, AddPostSerializer, PostSerializer, \
-    ChangePasswordSerializer, BidSerializer, AddBidSerializer, ChatSerializer
+    ChangePasswordSerializer, BidSerializer, AddBidSerializer, ChatSerializer, ChatMessagesSerializer
+
+
+class ChatAPI(generics.GenericAPIView, mixins.ListModelMixin):
+    serializer_class = ChatMessagesSerializer
+    queryset = ChatMessage.objects.all()
+
+    def post(self, request, *args, **kwargs):
+        thread_id = request.data.get('thread')
+        request.data.update({
+            "thread": thread_id,
+            "sender": request.user.id
+        })
+        serializer = ChatMessagesSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class PostChatAPI(generics.GenericAPIView):
