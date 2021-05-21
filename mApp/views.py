@@ -15,8 +15,17 @@ class ChatAPI(generics.GenericAPIView, mixins.ListModelMixin):
     serializer_class = ChatMessagesSerializer
     queryset = ChatMessage.objects.all()
 
+    def get_queryset(self):
+        data = ChatMessage.objects.filter(thread_id=self.kwargs.get('thread_id'))
+        return data
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
     def post(self, request, *args, **kwargs):
-        thread_id = request.data.get('thread')
+        thread_id = request.data.get('thread_id')
         request.data.update({
             "thread": thread_id,
             "sender": request.user.id
