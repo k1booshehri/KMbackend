@@ -12,6 +12,7 @@ urlpatterns = [
     path('api/auth/logout', knox_views.LogoutView.as_view(), name='knox_logout'),
     path('api/users/<int:id>', views.UserProfile.as_view()),
     path('api/users/<int:id>/change-password', views.ChangePasswordView.as_view(), name='password-update'),
+    path('api/users/chats', views.UserChatsAPI.as_view()),
     path('api/posts', views.AddPostAPI.as_view(), name='add-post'),
     path('api/posts/<int:id>', views.PostAPI.as_view()),
     path('api/posts/<int:id>/bids', views.PostBidsAPI.as_view(), name='post-bids'),

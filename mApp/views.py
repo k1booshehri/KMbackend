@@ -11,6 +11,51 @@ from mApp.serializers import UserSerializer, UpdateUserSerializer, AddPostSerial
     ChangePasswordSerializer, BidSerializer, AddBidSerializer, ChatSerializer, ChatMessagesSerializer
 
 
+class UserChatsAPI(generics.GenericAPIView):
+    serializer_class = ChatSerializer
+    return_data = []
+    # permission_classes = [And(IsGetRequest, IsChatOwner), ]
+    permission_classes = [IsAuthenticated, ]
+
+    def get(self, request, *args, **kwargs):
+        self.return_data = []
+
+        threads = ChatThread.objects.filter(user1_id=request.user)
+        self.chat_info(request, threads)
+
+        threads = ChatThread.objects.filter(user2_id=request.user)
+        self.chat_info(request, threads)
+
+        new_data = []
+        for i in range(len(self.return_data)):
+            if self.return_data[i].get('message').get('thread') is not None:
+                new_data.append(self.return_data[i])
+
+        new_data = sorted(new_data, key=lambda x: x['message']['created_at'], reverse=True)
+        return Response(new_data, status=status.HTTP_200_OK)
+
+    def chat_info(self, request, threads):
+        for i in range(len(threads)):
+            if request.user.id == threads[i].user1.id:
+                user = User.objects.get(id=threads[i].user2.id)
+                self.add_data(threads, user, i)
+
+            else:
+                user = User.objects.get(id=threads[i].user1.id)
+                self.add_data(threads, user, i)
+
+    def add_data(self, threads, user, i):
+        last_message = ChatMessage.objects.filter(thread_id=threads[i].id)
+
+        message_info = ChatMessagesSerializer(last_message.last())
+        user_info = UserSerializer(user)
+        self.return_data.append({
+            'thread_id': threads[i].id,
+            'user': user_info.data,
+            'message': message_info.data
+        })
+
+
 class MessageAPI(generics.GenericAPIView, mixins.ListModelMixin):
     permission_classes = [Or(And(IsDeleteRequest, IsChatOwner),
                              And(IsPutRequest, IsChatOwner))]
@@ -51,7 +96,7 @@ class ChatAPI(generics.GenericAPIView, mixins.ListModelMixin):
         return Response(serializer.data)
 
     def post(self, request, *args, **kwargs):
-        thread_id = request.data.get('thread_id')
+        thread_id = self.kwargs.get('thread_id')
         request.data.update({
             "thread": thread_id,
             "sender": request.user.id
