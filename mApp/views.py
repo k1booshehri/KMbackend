@@ -12,6 +12,9 @@ from mApp.serializers import UserSerializer, UpdateUserSerializer, AddPostSerial
 
 
 class MessageAPI(generics.GenericAPIView, mixins.ListModelMixin):
+    permission_classes = [Or(And(IsDeleteRequest, IsChatOwner),
+                             And(IsPutRequest, IsChatOwner))]
+
     def delete(self, request, *args, **kwargs):
         try:
             ChatMessage.objects.get(id=kwargs.get('message_id')).delete()
@@ -34,6 +37,9 @@ class MessageAPI(generics.GenericAPIView, mixins.ListModelMixin):
 class ChatAPI(generics.GenericAPIView, mixins.ListModelMixin):
     serializer_class = ChatMessagesSerializer
     queryset = ChatMessage.objects.all()
+    permission_classes = [Or(And(IsGetRequest, IsChatOwner),
+                             And(IsPostRequest, IsChatOwner),
+                             And(IsPutRequest, IsChatOwner))]
 
     def get_queryset(self):
         data = ChatMessage.objects.filter(thread_id=self.kwargs.get('thread_id'))
