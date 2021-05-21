@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Post, Bid,Notifications
+from .models import User, Post, Bid, Notifications, ChatThread, ChatMessage
 from django.contrib.auth import authenticate
 
 

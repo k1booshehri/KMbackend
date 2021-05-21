@@ -19,7 +19,8 @@ urlpatterns = [
     path('api/bids', views.AddBidAPI.as_view(), name='add-bid'),
     path('api/bids/<int:id>', views.BidAPI.as_view(), name='bid-api'),
     path('api/bids/<int:id>/accept', views.AcceptBidAPI.as_view(), name='accept-bid-api'),
-    path('api/filter/', FilterAPI.as_view(),name='getitems'),
-    path('api/posts/myposts',MyPostsAPI.as_view(),name='myposts'),
-    path('api/notifications/getmynotifications',NotificationsAPI.as_view(),name='mynotifs')
+    path('api/filter/', FilterAPI.as_view(), name='getitems'),
+    path('api/posts/myposts', MyPostsAPI.as_view(), name='myposts'),
+    path('api/notifications/getmynotifications', NotificationsAPI.as_view(),name='mynotifs'),
+    path('api/chat', views.PostChatAPI.as_view()),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

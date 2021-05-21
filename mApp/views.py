@@ -6,9 +6,56 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from enum import Enum
 from .models import Notifications
 
-from mApp.models import User, Post, Bid
+from mApp.models import User, Post, Bid, ChatMessage, ChatThread
 from mApp.serializers import UserSerializer, UpdateUserSerializer, AddPostSerializer, PostSerializer, \
-    ChangePasswordSerializer, BidSerializer, AddBidSerializer
+    ChangePasswordSerializer, BidSerializer, AddBidSerializer, ChatSerializer
+
+
+class PostChatAPI(generics.GenericAPIView):
+    serializer_class = ChatSerializer
+    permission_classes = (IsAuthenticated, )
+
+    def get(self, request, *args, **kwargs):
+        try:
+            user1 = request.user
+            user2 = User.objects.get(id=request.query_params.get('other'))
+        except:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        thread = ChatThread.objects.filter(user1=user1.id, user2=user2.id)
+
+        if not len(thread) == 0:
+            serializer = ChatSerializer(thread.first())
+            ser = UserSerializer(user2)
+            return_data = {
+                'thread_id': serializer.data.get('id'),
+                'user': ser.data,
+            }
+            return Response(return_data)
+
+        thread = ChatThread.objects.filter(user1=user2.id, user2=user1.id)
+        if not len(thread) == 0:
+            serializer = ChatSerializer(thread.first())
+            ser = UserSerializer(user2)
+            return_data = {
+                'thread_id': serializer.data.get('id'),
+                'user': ser.data,
+            }
+            return Response(return_data)
+
+        request.data.update({
+            'user1': user1.id,
+            'user2': user2.id
+        })
+        serializer = ChatSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        ser = UserSerializer(user2)
+        return Response({
+                'thread_id': serializer.data.get('id'),
+                'user': ser.data
+                # 'message': None
+        })
 
 
 class UserProfile(generics.GenericAPIView):
