@@ -35,6 +35,30 @@ class ChatAPI(generics.GenericAPIView, mixins.ListModelMixin):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    def put(self, request, *args, **kwargs):
+        try:
+            thread = ChatThread.objects.get(id=kwargs.get('thread_id'))
+            messages = ChatMessage.objects.filter(thread_id=thread.id)
+            if request.user == thread.user1:
+                other = thread.user2
+            else:
+                other = thread.user1
+
+            for message in messages:
+                if message.sender == other:
+                    data = {
+                        'thread_id': thread.id,
+                        'is_read': True
+                    }
+                    ser = ChatMessagesSerializer(data=data)
+                    ser.is_valid(raise_exception=True)
+                    ser.update(instance=message, validated_data=data)
+
+            return Response(status=status.HTTP_200_OK)
+
+        except:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 class PostChatAPI(generics.GenericAPIView):
     serializer_class = ChatSerializer
