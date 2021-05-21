@@ -102,3 +102,15 @@ class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notifications
         fields = '__all__'
+
+
+class ChatSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ChatThread
+        fields = '__all__'
+
+
+class ChatMessagesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ChatMessage
+        fields = '__all__'
