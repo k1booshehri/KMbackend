@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Post, Bid,Notifications,Bookmarks
+from .models import User, Post, Bid, Notifications, ChatThread, ChatMessage, Bookmarks
 from django.contrib.auth import authenticate
 
 
@@ -103,6 +103,19 @@ class NotificationSerializer(serializers.ModelSerializer):
         model = Notifications
         fields = '__all__'
 
+
+class ChatSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ChatThread
+        fields = '__all__'
+
+
+class ChatMessagesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ChatMessage
+        fields = '__all__'
+
+        
 class BookMarkSerializer(serializers.ModelSerializer):
     class Meta:
         model = Bookmarks
@@ -113,6 +126,7 @@ class BookMarkSerializer(serializers.ModelSerializer):
         post=Post.objects.get(id=postid)
         bookmark=Bookmarks.objects.create(markedpost=post,markedby=user)
 
+        
 class GetMarksSerializer(serializers.ModelSerializer):
     markedpost=PostSerializer()
     
@@ -120,6 +134,7 @@ class GetMarksSerializer(serializers.ModelSerializer):
         model = Bookmarks
         fields = '__all__'
 
+        
 class BidUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Bid

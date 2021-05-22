@@ -119,6 +119,7 @@ class GetAllPuppiesTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
+
 class GetMyPostsTest(TestCase):
     """ Test module for GET all Post API """
     def setUp(self):

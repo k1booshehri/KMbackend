@@ -1,14 +1,181 @@
 from rest_framework.response import Response
-from rest_framework import status, generics
+from rest_framework import status, generics, mixins
 from rest_condition import And, Or, Not
 from .permissions import *
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from enum import Enum
 from .models import Notifications
 
-from mApp.models import User, Post, Bid
+from mApp.models import User, Post, Bid, ChatMessage, ChatThread
 from mApp.serializers import UserSerializer, UpdateUserSerializer, AddPostSerializer, PostSerializer, \
-    ChangePasswordSerializer, BidSerializer, AddBidSerializer
+    ChangePasswordSerializer, BidSerializer, AddBidSerializer, ChatSerializer, ChatMessagesSerializer
+
+
+class UserChatsAPI(generics.GenericAPIView):
+    serializer_class = ChatSerializer
+    return_data = []
+    # permission_classes = [And(IsGetRequest, IsChatOwner), ]
+    permission_classes = [IsAuthenticated, ]
+
+    def get(self, request, *args, **kwargs):
+        self.return_data = []
+
+        threads = ChatThread.objects.filter(user1_id=request.user)
+        self.chat_info(request, threads)
+
+        threads = ChatThread.objects.filter(user2_id=request.user)
+        self.chat_info(request, threads)
+
+        new_data = []
+        for i in range(len(self.return_data)):
+            if self.return_data[i].get('message').get('thread') is not None:
+                new_data.append(self.return_data[i])
+
+        new_data = sorted(new_data, key=lambda x: x['message']['created_at'], reverse=True)
+        return Response(new_data, status=status.HTTP_200_OK)
+
+    def chat_info(self, request, threads):
+        for i in range(len(threads)):
+            if request.user.id == threads[i].user1.id:
+                user = User.objects.get(id=threads[i].user2.id)
+                self.add_data(threads, user, i)
+
+            else:
+                user = User.objects.get(id=threads[i].user1.id)
+                self.add_data(threads, user, i)
+
+    def add_data(self, threads, user, i):
+        last_message = ChatMessage.objects.filter(thread_id=threads[i].id)
+
+        message_info = ChatMessagesSerializer(last_message.last())
+        user_info = UserSerializer(user)
+        self.return_data.append({
+            'thread_id': threads[i].id,
+            'user': user_info.data,
+            'message': message_info.data
+        })
+
+
+class MessageAPI(generics.GenericAPIView, mixins.ListModelMixin):
+    permission_classes = [Or(And(IsDeleteRequest, IsChatOwner),
+                             And(IsPutRequest, IsChatOwner))]
+
+    def delete(self, request, *args, **kwargs):
+        try:
+            ChatMessage.objects.get(id=kwargs.get('message_id')).delete()
+            return Response(status=status.HTTP_200_OK)
+        except:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+    def put(self, request, *args, **kwargs):
+        request.data.update({
+            'id': kwargs.get('message_id')
+        })
+        ser = ChatMessagesSerializer(data=request.data)
+        ser.is_valid(raise_exception=True)
+        ser.update(instance=ChatMessage.objects.get(id=kwargs.get('message_id')), validated_data=request.data)
+        return Response({
+            "message": ser.data
+        })
+
+
+class ChatAPI(generics.GenericAPIView, mixins.ListModelMixin):
+    serializer_class = ChatMessagesSerializer
+    queryset = ChatMessage.objects.all()
+    permission_classes = [Or(And(IsGetRequest, IsChatOwner),
+                             And(IsPostRequest, IsChatOwner),
+                             And(IsPutRequest, IsChatOwner))]
+
+    def get_queryset(self):
+        data = ChatMessage.objects.filter(thread_id=self.kwargs.get('thread_id'))
+        return data
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, *args, **kwargs):
+        thread_id = self.kwargs.get('thread_id')
+        request.data.update({
+            "thread": thread_id,
+            "sender": request.user.id
+        })
+        serializer = ChatMessagesSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request, *args, **kwargs):
+        try:
+            thread = ChatThread.objects.get(id=kwargs.get('thread_id'))
+            messages = ChatMessage.objects.filter(thread_id=thread.id)
+            if request.user == thread.user1:
+                other = thread.user2
+            else:
+                other = thread.user1
+
+            for message in messages:
+                if message.sender == other:
+                    data = {
+                        'thread_id': thread.id,
+                        'is_read': True
+                    }
+                    ser = ChatMessagesSerializer(data=data)
+                    ser.is_valid(raise_exception=True)
+                    ser.update(instance=message, validated_data=data)
+
+            return Response(status=status.HTTP_200_OK)
+
+        except:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class PostChatAPI(generics.GenericAPIView):
+    serializer_class = ChatSerializer
+    permission_classes = (IsAuthenticated, )
+
+    def get(self, request, *args, **kwargs):
+        try:
+            user1 = request.user
+            user2 = User.objects.get(id=request.query_params.get('other'))
+        except:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        thread = ChatThread.objects.filter(user1=user1.id, user2=user2.id)
+
+        if not len(thread) == 0:
+            serializer = ChatSerializer(thread.first())
+            ser = UserSerializer(user2)
+            return_data = {
+                'thread_id': serializer.data.get('id'),
+                'user': ser.data,
+            }
+            return Response(return_data)
+
+        thread = ChatThread.objects.filter(user1=user2.id, user2=user1.id)
+        if not len(thread) == 0:
+            serializer = ChatSerializer(thread.first())
+            ser = UserSerializer(user2)
+            return_data = {
+                'thread_id': serializer.data.get('id'),
+                'user': ser.data,
+            }
+            return Response(return_data)
+
+        request.data.update({
+            'user1': user1.id,
+            'user2': user2.id
+        })
+        serializer = ChatSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        ser = UserSerializer(user2)
+        return Response({
+                'thread_id': serializer.data.get('id'),
+                'user': ser.data
+                # 'message': None
+        })
 
 
 class UserProfile(generics.GenericAPIView):

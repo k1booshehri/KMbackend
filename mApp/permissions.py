@@ -1,5 +1,50 @@
 from rest_framework import permissions
-from .models import User, Post, Bid
+from .models import User, Post, Bid, ChatThread, ChatMessage
+
+
+class IsChatOwner(permissions.BasePermission):
+    def has_permission(self, request, view, **kwargs):
+        try:
+            chat = ChatThread.objects.get(id=view.kwargs.get('thread_id'))
+        except:
+            return self.check_message(request, view)
+
+        if request.user.id == chat.user1.id:
+            return True
+
+        if request.user.id == chat.user2.id:
+            return True
+
+        return False
+
+    def check_message(self, request, view):
+        try:
+            thread_id = ChatMessage.objects.get(id=view.kwargs.get('message_id')).thread.id
+            chat = ChatThread.objects.get(id=thread_id)
+        except:
+            return self.check_thread(request)
+
+        if request.user.id == chat.user1.id:
+            return True
+
+        if request.user.id == chat.user2.id:
+            return True
+
+        return False
+
+    def check_thread(self, request):
+        try:
+            chat = ChatThread.objects.get(id=request.data.get('thread'))
+        except:
+            return False
+
+        if request.user.id == chat.user1.id:
+            return True
+
+        if request.user.id == chat.user2.id:
+            return True
+
+        return False
 
 
 class IsBidPostOwner(permissions.BasePermission):
