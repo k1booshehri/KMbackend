@@ -25,7 +25,7 @@ urlpatterns = [
     path('api/bookmarks/setmark', MakeBookMarkAPI.as_view(), name='setmark'),
     path('api/bookmarks/getmarks', GetMarksAPI.as_view(), name='getmarks'),
     path('api/bids/edit', BidUpdateAPI.as_view(), name='editbid'),
-    path('api/bookmarks/ismarked', IsMarkedAPI.as_view(), name='ismarked')
+    path('api/bookmarks/ismarked', IsMarkedAPI.as_view(), name='ismarked'),
     path('api/chat', views.PostChatAPI.as_view()),
     path('api/chat/<int:thread_id>', views.ChatAPI.as_view()),
     path('api/message', views.ChatAPI.as_view()),
