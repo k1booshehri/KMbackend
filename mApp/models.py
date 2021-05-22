@@ -26,7 +26,9 @@ class Post(models.Model):
     image = models.ImageField(blank=True, null=True)
     categories = models.CharField(null=True, max_length=500)
     created_at = models.DateTimeField(auto_now=True, auto_now_add=False)
-
+    exchange_book_title = models.CharField(null=True, max_length=500)
+    exchange_book_author = models.CharField(null=True, max_length=500)
+    exchange_book_publisher = models.CharField(null=True, max_length=500)
     def get_city(self):
         return self.title + ' is in ' + self.city + ' city.'
 
@@ -37,6 +39,7 @@ class Bid(models.Model):
     offered_price = models.IntegerField(null=True)
     description = models.CharField(null=True, max_length=500)
     is_accepted = models.BooleanField(null=True, default=False)
+    exchange_image = models.ImageField(blank=True, null=True)
 
 
 class Notifications(models.Model):
@@ -45,7 +48,7 @@ class Notifications(models.Model):
     message = models.CharField(null=True, max_length=1000)
     is_seen=models.BooleanField(default=False)
 
-
+    
 class ChatThread(models.Model):
     user1 = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name='user1')
     user2 = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name='user2')
@@ -58,3 +61,8 @@ class ChatMessage(models.Model):
     created_at = models.DateTimeField(auto_now=True, auto_now_add=False)
     sender = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name='sender')
     reply_of = models.IntegerField(null=True)
+
+    
+class Bookmarks(models.Model):
+    markedpost=models.ForeignKey(Post, on_delete=models.CASCADE, null=True)
+    markedby=models.ForeignKey(User, on_delete=models.CASCADE, null=True)

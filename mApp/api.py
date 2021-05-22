@@ -1,12 +1,13 @@
 from rest_framework import generics, permissions, viewsets
 from rest_framework.response import Response
 from knox.models import AuthToken
-from .serializers import UserSerializer, RegisterSerializer, LoginSerializer, PostSerializer,NotificationSerializer
-from .models import Post,Notifications
+from .serializers import UserSerializer, RegisterSerializer, LoginSerializer, PostSerializer,NotificationSerializer,BookMarkSerializer,GetMarksSerializer,BidUpdateSerializer
+from .models import Post,Notifications,Bookmarks,Bid
 from django.db.models import Q
 import operator
 import functools
 import copy
+from rest_framework.views import APIView
 
 
 class RegisterAPI(generics.GenericAPIView):
@@ -108,3 +109,53 @@ class NotificationsAPI(generics.ListAPIView):
         q=copy.copy(queryset)
         queryset.update(is_seen=True)  
         return q
+
+
+class MakeBookMarkAPI(generics.GenericAPIView):
+    serializer_class = BookMarkSerializer
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+        user=self.request.user
+        postid=data['markedpost']
+        bookmark=Bookmarks.objects.create(markedpost=postid,markedby=user)
+        return Response({"done"})
+
+class GetMarksAPI(generics.ListAPIView):
+    serializer_class =GetMarksSerializer
+    def get_queryset(self):
+        user=self.request.user
+        queryset = Bookmarks.objects.all()
+        queryset = queryset.filter(markedby=user)
+        return queryset
+
+
+class BidUpdateAPI(generics.GenericAPIView):
+    permission_classes = [
+        permissions.IsAuthenticated,
+    ]
+    serializer_class = BidUpdateSerializer
+
+    def put(self, request, *args, **kwargs):
+        bidid=self.request.GET.get('bidid', None)
+        print(bidid)
+        b = Bid.objects.get(id=bidid)
+        serializer = self.get_serializer(b, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        return Response({
+            "bid updated"
+        })
+
+
+class IsMarkedAPI(APIView):
+    def get(self, request, format=None):
+        postid=self.request.GET.get('postid', None)
+        user=self.request.user
+        queryset = Bookmarks.objects.all()
+        count = len(queryset.filter(markedby=user,markedpost=postid))
+        mybool=False
+        if count>0:
+            mybool=True
+        return Response(mybool)

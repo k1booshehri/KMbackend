@@ -1,6 +1,6 @@
 from django.urls import path, include
 from . import views
-from .api import RegisterAPI, LoginAPI, UserAPI,FilterAPI,MyPostsAPI,NotificationsAPI
+from .api import RegisterAPI, LoginAPI, UserAPI,FilterAPI,MyPostsAPI,NotificationsAPI,MakeBookMarkAPI,GetMarksAPI,BidUpdateAPI,IsMarkedAPI
 from knox import views as knox_views
 from django.conf import settings
 from django.conf.urls.static import static
@@ -19,12 +19,15 @@ urlpatterns = [
     path('api/bids', views.AddBidAPI.as_view(), name='add-bid'),
     path('api/bids/<int:id>', views.BidAPI.as_view(), name='bid-api'),
     path('api/bids/<int:id>/accept', views.AcceptBidAPI.as_view(), name='accept-bid-api'),
-    path('api/filter/', FilterAPI.as_view(), name='getitems'),
-    path('api/posts/myposts', MyPostsAPI.as_view(), name='myposts'),
-    path('api/notifications/getmynotifications', NotificationsAPI.as_view(),name='mynotifs'),
+    path('api/filter/', FilterAPI.as_view(),name='getitems'),
+    path('api/posts/myposts',MyPostsAPI.as_view(),name='myposts'),
+    path('api/notifications/getmynotifications',NotificationsAPI.as_view(),name='mynotifs'),
+    path('api/bookmarks/setmark', MakeBookMarkAPI.as_view(), name='setmark'),
+    path('api/bookmarks/getmarks', GetMarksAPI.as_view(), name='getmarks'),
+    path('api/bids/edit', BidUpdateAPI.as_view(), name='editbid'),
+    path('api/bookmarks/ismarked', IsMarkedAPI.as_view(), name='ismarked')
     path('api/chat', views.PostChatAPI.as_view()),
     path('api/chat/<int:thread_id>', views.ChatAPI.as_view()),
     path('api/message', views.ChatAPI.as_view()),
     path('api/message/<int:message_id>', views.MessageAPI.as_view()),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
