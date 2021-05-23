@@ -159,3 +159,11 @@ class IsMarkedAPI(APIView):
         if count>0:
             mybool=True
         return Response(mybool)
+
+class DeMarkAPI(APIView):
+    def delete(self, request, format=None):
+        postid=self.request.GET.get('postid', None)
+        user=self.request.user
+        snippet = Bookmarks.objects.get(markedby=user,markedpost=postid)
+        snippet.delete()
+        return Response({"done"})
