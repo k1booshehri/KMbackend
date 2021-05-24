@@ -2,8 +2,8 @@ import json
 from rest_framework import status
 from django.test import TestCase, Client
 from django.urls import reverse
-from ..models import Post,User,Bid
-from ..serializers import PostSerializer,UserSerializer
+from ..models import Post,User,Bid,Bookmarks
+from ..serializers import PostSerializer,UserSerializer,BookMarkSerializer
 
 # initialize the APIClient app
 client = Client()
@@ -134,6 +134,25 @@ class GetMyPostsTest(TestCase):
         p = Post.objects.all()
         u=User.objects.get(username='abcd@ef.ghi')
         p=p.filter(owner=u)
+        serializer = PostSerializer(p, many=True)
+        self.assertEqual(response.json()['results'], serializer.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+
+class BookmarksTest(TestCase):
+    def setUp(self):
+        Response=client.post('/api/auth/register',{'username':'abcd@ef.ghi','email':'abcd@ef.ghi','password':'123456'})
+        self.sharedvar=Response.json()['token']
+        u=User.objects.get(username='abcd@ef.ghi')
+        Post.objects.create(owner=u,title='SE modern approach', categories=3, city='tehran')
+
+    def setmark(self):
+        response1 = client.post('api/bookmarks/setmark',{"markedpost":"1"},HTTP_AUTHORIZATION='token '+self.sharedvar)
+        response = client.get('api/bookmarks/getmarks',HTTP_AUTHORIZATION='token '+self.sharedvar)
+        b = Bookmarks.objects.all()
+        u=User.objects.get(username='abcd@ef.ghi')
+        b=p.filter(markedby=u)
         serializer = PostSerializer(p, many=True)
         self.assertEqual(response.json()['results'], serializer.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
