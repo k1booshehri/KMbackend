@@ -10,7 +10,6 @@ client = Client()
 
 
 class GetAllPuppiesTest(TestCase):
-    """ Test module for GET all Post API """
 
     def setUp(self):
         client = Client()
@@ -119,9 +118,23 @@ class GetAllPuppiesTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
+    def test_get_chat_thread_id(self):
+        login_post_owner = self.client.post(self.login_url, {
+            "username": "mrBn@gmail.com",
+            "password": "123456",
+        })
+
+        other_user = 2
+        response = self.client.get(
+            '/api/chat?other=' + str(other_user),
+            HTTP_AUTHORIZATION='token ' + login_post_owner.json()['token']
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['user']['id'], other_user)
+
 
 class GetMyPostsTest(TestCase):
-    """ Test module for GET all Post API """
     def setUp(self):
         Response=client.post('/api/auth/register',{'username':'abcd@ef.ghi','email':'abcd@ef.ghi','password':'123456'})
         self.sharedvar=Response.json()['token']
@@ -130,7 +143,7 @@ class GetMyPostsTest(TestCase):
         Post.objects.create(owner=u,title='Ditel and Ditel', categories=2, city='esfahan')
 
     def test_get_my_posts(self):
-        response = client.get('/api/posts/myposts',HTTP_AUTHORIZATION='token '+self.sharedvar)
+        response = client.get('/api/posts/myposts', HTTP_AUTHORIZATION='token '+self.sharedvar)
         p = Post.objects.all()
         u=User.objects.get(username='abcd@ef.ghi')
         p=p.filter(owner=u)
