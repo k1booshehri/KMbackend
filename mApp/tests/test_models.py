@@ -1,5 +1,5 @@
 from django.test import TestCase
-from ..models import User, Post, Bid
+from ..models import User, Post, Bid, ChatThread, ChatMessage
 
 
 class TestModels(TestCase):
@@ -71,3 +71,31 @@ class TestModels(TestCase):
 
         self.assertEqual(b1.owner, User.objects.get(id=2))
         self.assertEqual(b1.post, Post.objects.get(id=1))
+
+    def test_chat_thread_id(self):
+        user1 = User.objects.get(id=1)
+        user2 = User.objects.get(id=2)
+        t1 = ChatThread.objects.create(
+            user1=user1,
+            user2=user2
+        )
+
+        self.assertEqual(t1.user1.id, user1.id)
+        self.assertEqual(t1.user2.id, user2.id)
+
+    def test_chat_message(self):
+        user1 = User.objects.get(id=1)
+        user2 = User.objects.get(id=2)
+        t1 = ChatThread.objects.create(
+            user1=user1,
+            user2=user2
+        )
+
+        message = ChatMessage.objects.create(
+            thread=t1,
+            message='Hi! How are you?',
+            sender=user1
+        )
+
+        self.assertEqual(message.sender.id, user1.id)
+        self.assertEqual(message.thread.id, t1.id)
