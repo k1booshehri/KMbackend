@@ -1,6 +1,7 @@
 import json
 from rest_framework import status
 from django.test import TestCase, Client
+from rest_framework.test import APIClient
 from django.urls import reverse
 from ..models import Post, User, Bid
 from ..serializers import PostSerializer, UserSerializer, ChatSerializer
@@ -247,6 +248,35 @@ class GetAllPuppiesTest(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
+
+    def test_chat_edit_message(self):
+        login_post_owner = self.client.post(self.login_url, {
+            "username": "mrBn@gmail.com",
+            "password": "123456",
+        })
+
+        other_user = 2
+        get_chat_response = self.client.get(
+            '/api/chat?other=' + str(other_user),
+            HTTP_AUTHORIZATION='token ' + login_post_owner.json()['token']
+        )
+
+        message_content = 'Hi, you good?'
+        send_msg_response = self.client.post(
+            '/api/chat/' + str(get_chat_response.json()['thread_id']),
+            {'message': message_content},
+            HTTP_AUTHORIZATION='token ' + login_post_owner.json()['token'],
+        )
+
+        new_message_content = 'the new message'
+        response = APIClient().put(
+            '/api/message/' + str(send_msg_response.json()['id']),
+            {'message': new_message_content},
+            HTTP_AUTHORIZATION='token ' + login_post_owner.json()['token'],
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['message']['message'], new_message_content)
 
 
 class GetMyPostsTest(TestCase):

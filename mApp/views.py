@@ -68,12 +68,13 @@ class MessageAPI(generics.GenericAPIView, mixins.ListModelMixin):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
     def put(self, request, *args, **kwargs):
-        request.data.update({
+        new_data = request.data.copy()
+        new_data.update({
             'id': kwargs.get('message_id')
         })
-        ser = ChatMessagesSerializer(data=request.data)
+        ser = ChatMessagesSerializer(data=new_data)
         ser.is_valid(raise_exception=True)
-        ser.update(instance=ChatMessage.objects.get(id=kwargs.get('message_id')), validated_data=request.data)
+        ser.update(instance=ChatMessage.objects.get(id=kwargs.get('message_id')), validated_data=new_data)
         return Response({
             "message": ser.data
         })
@@ -257,7 +258,7 @@ class AddPostAPI(generics.GenericAPIView):
     def post(self, request, *args, **kwargs):
         new_data = request.data.copy()
         new_data.update({
-            'owner': request.user,
+            'owner': request.user
         })
         serializer = AddPostSerializer(data=new_data)
         serializer.is_valid(raise_exception=True)
