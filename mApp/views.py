@@ -97,11 +97,12 @@ class ChatAPI(generics.GenericAPIView, mixins.ListModelMixin):
 
     def post(self, request, *args, **kwargs):
         thread_id = self.kwargs.get('thread_id')
-        request.data.update({
+        new_data = request.data.copy()
+        new_data.update({
             "thread": thread_id,
             "sender": request.user.id
         })
-        serializer = ChatMessagesSerializer(data=request.data)
+        serializer = ChatMessagesSerializer(data=new_data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
