@@ -45,6 +45,18 @@ class GetAllPuppiesTest(TestCase):
             "entry_year": "97"
         })
 
+        client.post(self.signup_url, {
+            "username": "matin@gmail.com",
+            "email": "matin@gmail.com",
+            "first_name": "matin",
+            "last_name": "mrjn",
+            "password": "123456",
+            "phone_number": "5344662148951",
+            "university": "iust",
+            "field_of_study": "CE",
+            "entry_year": "97"
+        })
+
         Post.objects.create(owner=User.objects.get(id=1),
                             title='riazi 1 faramarzi',
                             author='faramarzi',
@@ -277,6 +289,32 @@ class GetAllPuppiesTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()['message']['message'], new_message_content)
+
+    def test_chat_get_chats(self):
+        login_post_owner = self.client.post(self.login_url, {
+            "username": "mrBn@gmail.com",
+            "password": "123456",
+        })
+
+        other_user = 2
+        self.client.get(
+            '/api/chat?other=' + str(other_user),
+            HTTP_AUTHORIZATION='token ' + login_post_owner.json()['token']
+        )
+
+        other_user = 3
+        self.client.get(
+            '/api/chat?other=' + str(other_user),
+            HTTP_AUTHORIZATION='token ' + login_post_owner.json()['token']
+        )
+
+        response = self.client.get(
+            '/api/users/chats',
+            HTTP_AUTHORIZATION='token ' + login_post_owner.json()['token'],
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(type(response.json()), list)
 
 
 class GetMyPostsTest(TestCase):
