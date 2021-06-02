@@ -163,11 +163,6 @@ class GetAllPuppiesTest(TestCase):
             "password": "123456",
         })
 
-        login_user2 = self.client.post(self.login_url, {
-            "username": "k1@gmail.com",
-            "password": "123456",
-        })
-
         other_user = 2
         get_chat_response = self.client.get(
             '/api/chat?other=' + str(other_user),
