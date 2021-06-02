@@ -157,6 +157,50 @@ class GetAllPuppiesTest(TestCase):
         self.assertEqual(response.json()['thread'], get_chat_response.json()['thread_id'])
         self.assertEqual(response.json()['sender'], 1)
 
+    def test_chat_get_messages(self):
+        login_user1 = self.client.post(self.login_url, {
+            "username": "mrBn@gmail.com",
+            "password": "123456",
+        })
+
+        login_user2 = self.client.post(self.login_url, {
+            "username": "k1@gmail.com",
+            "password": "123456",
+        })
+
+        other_user = 2
+        get_chat_response = self.client.get(
+            '/api/chat?other=' + str(other_user),
+            HTTP_AUTHORIZATION='token ' + login_user1.json()['token']
+        )
+
+        message_content = 'Hi'
+        self.client.post(
+            '/api/chat/' + str(get_chat_response.json()['thread_id']),
+            {'message': message_content},
+            HTTP_AUTHORIZATION='token ' + login_user1.json()['token'],
+        )
+        message_content = 'you good?'
+        self.client.post(
+            '/api/chat/' + str(get_chat_response.json()['thread_id']),
+            {'message': message_content},
+            HTTP_AUTHORIZATION='token ' + login_user1.json()['token'],
+        )
+        message_content = 'you good?'
+        self.client.post(
+            '/api/chat/' + str(get_chat_response.json()['thread_id']),
+            {'message': message_content},
+            HTTP_AUTHORIZATION='token ' + login_user1.json()['token'],
+        )
+
+        response = self.client.get(
+            '/api/chat/' + str(get_chat_response.json()['thread_id']),
+            HTTP_AUTHORIZATION='token ' + login_user1.json()['token']
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(type(response.json()), list)
+
 
 class GetMyPostsTest(TestCase):
     def setUp(self):
