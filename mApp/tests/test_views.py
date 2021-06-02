@@ -196,6 +196,32 @@ class GetAllPuppiesTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(type(response.json()), list)
 
+    def test_chat_send_is_read(self):
+        login_post_owner = self.client.post(self.login_url, {
+            "username": "mrBn@gmail.com",
+            "password": "123456",
+        })
+
+        other_user = 2
+        get_chat_response = self.client.get(
+            '/api/chat?other=' + str(other_user),
+            HTTP_AUTHORIZATION='token ' + login_post_owner.json()['token']
+        )
+
+        message_content = 'Hi, you good?'
+        self.client.post(
+            '/api/chat/' + str(get_chat_response.json()['thread_id']),
+            {'message': message_content},
+            HTTP_AUTHORIZATION='token ' + login_post_owner.json()['token'],
+        )
+
+        response = self.client.put(
+            '/api/chat/' + str(get_chat_response.json()['thread_id']),
+            HTTP_AUTHORIZATION='token ' + login_post_owner.json()['token'],
+        )
+
+        self.assertEqual(response.status_code, 200)
+
 
 class GetMyPostsTest(TestCase):
     def setUp(self):
