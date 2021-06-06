@@ -9,9 +9,25 @@ from mApp.serializers import *
 from .permissions import *
 
 
+class GetStoreOrders(generics.GenericAPIView, mixins.ListModelMixin):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticated, ]
+
+    def get_queryset(self):
+        data = Order.objects.filter(post__owner__id=self.request.user.id)
+        return data
+
+    def get(self, request, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class GetUserOrders(generics.GenericAPIView, mixins.ListModelMixin):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticated, ]
 
     def get_queryset(self):
         data = Order.objects.filter(user_id=self.request.user)

@@ -35,6 +35,7 @@ urlpatterns = [
     path('api/message/<int:message_id>', views.MessageAPI.as_view()),
     path('api/bookmarks/demark', DeMarkAPI.as_view(), name='demark'),
     path('api/stores/<int:id>', StoresAPI.as_view(), name='getstore'),
+    path('api/stores/orders', views.GetStoreOrders.as_view()),
     path('api/order', views.AddOrderAPI.as_view()),
     path('api/order/<int:id>', views.OrderAPI.as_view()),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
