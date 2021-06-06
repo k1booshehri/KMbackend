@@ -19,7 +19,6 @@ urlpatterns = [
     path('api/posts/<int:id>', views.PostAPI.as_view()),
     path('api/posts/myposts',MyPostsAPI.as_view(), name='myposts'),
     path('api/posts/<int:id>/bids', views.PostBidsAPI.as_view(), name='post-bids'),
-    path('api/posts/<int:id>/order', views.AddOrderAPI.as_view()),
     path('api/bids', views.AddBidAPI.as_view(), name='add-bid'),
     path('api/bids/<int:id>', views.BidAPI.as_view(), name='bid-api'),
     path('api/bids/<int:id>/accept', views.AcceptBidAPI.as_view(), name='accept-bid-api'),
@@ -34,5 +33,6 @@ urlpatterns = [
     path('api/message', views.ChatAPI.as_view()),
     path('api/message/<int:message_id>', views.MessageAPI.as_view()),
     path('api/bookmarks/demark', DeMarkAPI.as_view(), name='demark'),
-    path('api/stores/<int:id>', StoresAPI.as_view(), name='getstore')
+    path('api/stores/<int:id>', StoresAPI.as_view(), name='getstore'),
+    path('api/order', views.AddOrderAPI.as_view()),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
