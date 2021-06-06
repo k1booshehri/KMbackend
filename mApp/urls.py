@@ -1,6 +1,6 @@
 from django.urls import path, include
 from . import views
-from .api import RegisterAPI, LoginAPI, UserAPI,FilterAPI,MyPostsAPI,NotificationsAPI,MakeBookMarkAPI,GetMarksAPI,BidUpdateAPI,IsMarkedAPI,DeMarkAPI
+from .api import RegisterAPI, LoginAPI, UserAPI,FilterAPI,MyPostsAPI,NotificationsAPI,MakeBookMarkAPI,GetMarksAPI,BidUpdateAPI,IsMarkedAPI,DeMarkAPI,StoresAPI
 from knox import views as knox_views
 from django.conf import settings
 from django.conf.urls.static import static
@@ -30,5 +30,6 @@ urlpatterns = [
     path('api/chat/<int:thread_id>', views.ChatAPI.as_view()),
     path('api/message', views.ChatAPI.as_view()),
     path('api/message/<int:message_id>', views.MessageAPI.as_view()),
-    path('api/bookmarks/demark', DeMarkAPI.as_view(), name='demark')
+    path('api/bookmarks/demark', DeMarkAPI.as_view(), name='demark'),
+    path('api/stores/<int:id>',StoresAPI.as_view(), name='getstore')
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -7,14 +7,14 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'phone_number',
-                  'profile_image', 'university', 'field_of_study', 'entry_year')
+                  'profile_image', 'university', 'field_of_study', 'entry_year','is_store','store_name')
 
 
 class UpdateUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'phone_number',
-                  'profile_image', 'university', 'field_of_study', 'entry_year')
+                  'profile_image', 'university', 'field_of_study', 'entry_year','is_store','store_name')
 
     def update(self, instance, validated_data):
         obj = super().update(instance, validated_data)
@@ -33,7 +33,7 @@ class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'password', 'email', 'first_name', 'last_name', 'phone_number',
-                  'profile_image', 'university', 'field_of_study', 'entry_year')
+                  'profile_image', 'university', 'field_of_study', 'entry_year','is_store','store_name')
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
@@ -145,3 +145,10 @@ class BidUpdateSerializer(serializers.ModelSerializer):
         instance.description = validated_data.get('description', instance.description)
         instance.save()
         return instance
+
+
+class StoreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'phone_number',
+                  'profile_image','is_store','store_name')

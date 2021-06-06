@@ -9,6 +9,8 @@ class User(AbstractUser):
     university = models.CharField(null=True, max_length=300, blank=True)
     field_of_study = models.CharField(null=True, max_length=400, blank=True)
     entry_year = models.IntegerField(null=True, blank=True)
+    is_store=models.BooleanField(default=False)
+    store_name=models.CharField(null=True, max_length=300, blank=True)
 
 
 class Post(models.Model):
@@ -31,6 +33,8 @@ class Post(models.Model):
     exchange_book_publisher = models.CharField(null=True, max_length=500)
     def get_city(self):
         return self.title + ' is in ' + self.city + ' city.'
+    is_from_store=models.BooleanField(default=False)
+    store_quantity=models.IntegerField(null=True, blank=True)
 
 
 class Bid(models.Model):
