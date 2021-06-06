@@ -9,8 +9,8 @@ class User(AbstractUser):
     university = models.CharField(null=True, max_length=300, blank=True)
     field_of_study = models.CharField(null=True, max_length=400, blank=True)
     entry_year = models.IntegerField(null=True, blank=True)
-    is_store=models.BooleanField(default=False)
-    store_name=models.CharField(null=True, max_length=300, blank=True)
+    is_store = models.BooleanField(default=False)
+    store_name = models.CharField(null=True, max_length=300, blank=True)
 
 
 class Post(models.Model):
@@ -31,10 +31,11 @@ class Post(models.Model):
     exchange_book_title = models.CharField(null=True, max_length=500)
     exchange_book_author = models.CharField(null=True, max_length=500)
     exchange_book_publisher = models.CharField(null=True, max_length=500)
+    is_from_store = models.BooleanField(default=False)
+    stock = models.IntegerField(null=True, blank=True, default=0)
+
     def get_city(self):
         return self.title + ' is in ' + self.city + ' city.'
-    is_from_store=models.BooleanField(default=False)
-    store_quantity=models.IntegerField(null=True, blank=True)
 
 
 class Bid(models.Model):
@@ -50,9 +51,9 @@ class Notifications(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, null=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     message = models.CharField(null=True, max_length=1000)
-    is_seen=models.BooleanField(default=False)
+    is_seen = models.BooleanField(default=False)
 
-    
+
 class ChatThread(models.Model):
     user1 = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name='user1')
     user2 = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name='user2')
@@ -66,7 +67,12 @@ class ChatMessage(models.Model):
     sender = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name='sender')
     reply_of = models.IntegerField(null=True)
 
-    
+
 class Bookmarks(models.Model):
-    markedpost=models.ForeignKey(Post, on_delete=models.CASCADE, null=True)
-    markedby=models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    markedpost = models.ForeignKey(Post, on_delete=models.CASCADE, null=True)
+    markedby = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+
+
+class Order(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, null=True)
