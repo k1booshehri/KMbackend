@@ -4,11 +4,37 @@ from rest_condition import And, Or, Not
 from .permissions import *
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from enum import Enum
-from .models import Notifications
 
-from mApp.models import User, Post, Bid, ChatMessage, ChatThread
+from mApp.models import User, Post, Bid, ChatMessage, ChatThread, Notifications, Order
 from mApp.serializers import UserSerializer, UpdateUserSerializer, AddPostSerializer, PostSerializer, \
-    ChangePasswordSerializer, BidSerializer, AddBidSerializer, ChatSerializer, ChatMessagesSerializer
+    ChangePasswordSerializer, BidSerializer, AddBidSerializer, ChatSerializer, ChatMessagesSerializer, \
+    OrderSerializer, AddOrderSerializer
+
+
+class AddOrderAPI(generics.GenericAPIView):
+    serializer_class = OrderSerializer
+    permission_classes = (IsAuthenticated, )
+
+    def post(self, request, *args, **kwargs):
+        new_data = request.data.copy()
+        new_data.update({
+            'user': request.user.id
+        })
+
+        post = Post.objects.get(id=request.data.get('post'))
+        if post.stock == 0:
+            return Response({"error": "Not available"}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = AddOrderSerializer(data=new_data)
+        serializer.is_valid(raise_exception=True)
+
+        post.stock = post.stock - 1
+        post.save()
+
+        order = serializer.save()
+        return Response({
+            "order": OrderSerializer(order, context=self.get_serializer_context()).data
+        })
 
 
 class UserChatsAPI(generics.GenericAPIView):
