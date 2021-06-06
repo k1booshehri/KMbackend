@@ -1,8 +1,8 @@
 from rest_framework import generics, permissions, viewsets
 from rest_framework.response import Response
 from knox.models import AuthToken
-from .serializers import UserSerializer, RegisterSerializer, LoginSerializer, PostSerializer,NotificationSerializer,BookMarkSerializer,GetMarksSerializer,BidUpdateSerializer
-from .models import Post,Notifications,Bookmarks,Bid
+from .serializers import UserSerializer, RegisterSerializer, LoginSerializer, PostSerializer,NotificationSerializer,BookMarkSerializer,GetMarksSerializer,BidUpdateSerializer,StoreSerializer
+from .models import Post,Notifications,Bookmarks,Bid,User
 from django.db.models import Q
 import operator
 import functools
@@ -57,6 +57,7 @@ class FilterAPI(generics.ListAPIView):
         mypriceend = self.request.GET.get('priceend', None)
         myprovince = self.request.GET.get('province', None)
         mycity = self.request.GET.get('city', None)
+        storesonly=self.request.GET.get('storesonly',None)
 
         if mypricestart is not None:
             queryset = queryset.filter(price__gt=mypricestart)
@@ -66,6 +67,8 @@ class FilterAPI(generics.ListAPIView):
             queryset = queryset.filter(province=myprovince)
         if mycity is not None:
             queryset = queryset.filter(city=mycity)
+        if storesonly=='true':
+            queryset = queryset.filter(is_from_store=True)
 
         cat = self.request.GET.get('category', None)
         if cat is not None:
@@ -167,3 +170,12 @@ class DeMarkAPI(APIView):
         snippet = Bookmarks.objects.get(markedby=user,markedpost=postid)
         snippet.delete()
         return Response({"done"})
+
+class StoresAPI(APIView):
+    serializer_class = StoreSerializer
+
+    def get(self, request, id):
+        return Response({
+            "store":StoreSerializer(User.objects.get(id=id)).data,
+            "products":PostSerializer(Post.objects.filter(owner=User.objects.get(id=id)),many=True).data
+            })
