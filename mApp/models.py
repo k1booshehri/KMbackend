@@ -76,3 +76,5 @@ class Bookmarks(models.Model):
 class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     post = models.ForeignKey(Post, on_delete=models.CASCADE, null=True)
+    created_at = models.DateTimeField(auto_now=True, auto_now_add=False)
+    address = models.CharField(null=True, max_length=1000)
