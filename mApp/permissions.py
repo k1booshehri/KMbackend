@@ -1,5 +1,19 @@
 from rest_framework import permissions
-from .models import User, Post, Bid, ChatThread, ChatMessage
+from .models import User, Post, Bid, ChatThread, ChatMessage, Order
+
+
+class IsOrderOwner(permissions.BasePermission):
+    def has_permission(self, request, view, **kwargs):
+        try:
+            order = Order.objects.get(id=view.kwargs.get('id'))
+        except e:
+            return False
+
+        if not request.user.username == order.user.username:
+            return False
+
+        else:
+            return True
 
 
 class IsChatOwner(permissions.BasePermission):

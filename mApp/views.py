@@ -1,14 +1,35 @@
 from rest_framework.response import Response
 from rest_framework import status, generics, mixins
 from rest_condition import And, Or, Not
-from .permissions import *
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from enum import Enum
 
-from mApp.models import User, Post, Bid, ChatMessage, ChatThread, Notifications, Order
-from mApp.serializers import UserSerializer, UpdateUserSerializer, AddPostSerializer, PostSerializer, \
-    ChangePasswordSerializer, BidSerializer, AddBidSerializer, ChatSerializer, ChatMessagesSerializer, \
-    OrderSerializer, AddOrderSerializer
+from mApp.models import *
+from mApp.serializers import *
+from .permissions import *
+
+
+class OrderAPI(generics.GenericAPIView):
+    serializer_class = OrderSerializer
+    permission_classes = [Or(And(IsGetRequest, AllowAny),
+                             And(IsPutRequest, IsOrderOwner),
+                             And(IsDeleteRequest, IsOrderOwner))]
+
+    def put(self, request, *args, **kwargs):
+        try:
+            order = Order.objects.get(id=kwargs.get('id'))
+            new_address = request.data.get('address')
+            order.address = new_address
+            order.save()
+            return Response({
+                "order": OrderSerializer(order, context=self.get_serializer_context()).data
+            })
+        except e:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, *args, **kwargs):
+        Order.objects.get(id=kwargs.get('id')).delete()
+        return Response(status=status.HTTP_200_OK)
 
 
 class AddOrderAPI(generics.GenericAPIView):
