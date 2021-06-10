@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Post, Bid, Notifications, ChatThread, ChatMessage, Bookmarks
+from .models import User, Post, Bid, Notifications, ChatThread, ChatMessage, Bookmarks, Order
 from django.contrib.auth import authenticate
 
 
@@ -7,14 +7,14 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'phone_number',
-                  'profile_image', 'university', 'field_of_study', 'entry_year','is_store','store_name')
+                  'profile_image', 'university', 'field_of_study', 'entry_year', 'is_store', 'store_name')
 
 
 class UpdateUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'phone_number',
-                  'profile_image', 'university', 'field_of_study', 'entry_year','is_store','store_name')
+                  'profile_image', 'university', 'field_of_study', 'entry_year', 'is_store', 'store_name')
 
     def update(self, instance, validated_data):
         obj = super().update(instance, validated_data)
@@ -29,11 +29,10 @@ class ChangePasswordSerializer(serializers.Serializer):
 
 
 class RegisterSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = User
         fields = ('id', 'username', 'password', 'email', 'first_name', 'last_name', 'phone_number',
-                  'profile_image', 'university', 'field_of_study', 'entry_year','is_store','store_name')
+                  'profile_image', 'university', 'field_of_study', 'entry_year', 'is_store', 'store_name')
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
@@ -42,7 +41,6 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class LoginSerializer(serializers.Serializer):
-
     username = serializers.CharField()
     password = serializers.CharField()
 
@@ -115,30 +113,31 @@ class ChatMessagesSerializer(serializers.ModelSerializer):
         model = ChatMessage
         fields = '__all__'
 
-        
+
 class BookMarkSerializer(serializers.ModelSerializer):
     class Meta:
         model = Bookmarks
         fields = ('markedpost',)
-    def create(self, validated_data):
-        user=self.request.user
-        postid=validated_data['markedpost']
-        post=Post.objects.get(id=postid)
-        bookmark=Bookmarks.objects.create(markedpost=post,markedby=user)
 
-        
+    def create(self, validated_data):
+        user = self.request.user
+        postid = validated_data['markedpost']
+        post = Post.objects.get(id=postid)
+        bookmark = Bookmarks.objects.create(markedpost=post, markedby=user)
+
+
 class GetMarksSerializer(serializers.ModelSerializer):
-    markedpost=PostSerializer()
-    
+    markedpost = PostSerializer()
+
     class Meta:
         model = Bookmarks
         fields = '__all__'
 
-        
+
 class BidUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Bid
-        fields = ('offered_price','description')
+        fields = ('offered_price', 'description')
 
     def update(self, instance, validated_data):
         instance.offered_price = validated_data.get('offered_price', instance.offered_price)
@@ -151,4 +150,19 @@ class StoreSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'phone_number',
-                  'profile_image','is_store','store_name')
+                  'profile_image', 'is_store', 'store_name')
+
+
+class AddOrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = '__all__'
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    post = PostSerializer()
+    user = UserSerializer()
+
+    class Meta:
+        model = Order
+        fields = '__all__'

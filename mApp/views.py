@@ -1,14 +1,91 @@
 from rest_framework.response import Response
 from rest_framework import status, generics, mixins
 from rest_condition import And, Or, Not
-from .permissions import *
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from enum import Enum
-from .models import Notifications
 
-from mApp.models import User, Post, Bid, ChatMessage, ChatThread
-from mApp.serializers import UserSerializer, UpdateUserSerializer, AddPostSerializer, PostSerializer, \
-    ChangePasswordSerializer, BidSerializer, AddBidSerializer, ChatSerializer, ChatMessagesSerializer
+from mApp.models import *
+from mApp.serializers import *
+from .permissions import *
+
+
+class GetStoreOrders(generics.GenericAPIView, mixins.ListModelMixin):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticated, ]
+
+    def get_queryset(self):
+        data = Order.objects.filter(post__owner__id=self.request.user.id)
+        return data
+
+    def get(self, request, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class GetUserOrders(generics.GenericAPIView, mixins.ListModelMixin):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticated, ]
+
+    def get_queryset(self):
+        data = Order.objects.filter(user_id=self.request.user)
+        return data
+
+    def get(self, request, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class OrderAPI(generics.GenericAPIView):
+    serializer_class = OrderSerializer
+    permission_classes = [Or(And(IsGetRequest, AllowAny),
+                             And(IsPutRequest, IsOrderOwner),
+                             And(IsDeleteRequest, IsOrderOwner))]
+
+    def put(self, request, *args, **kwargs):
+        try:
+            order = Order.objects.get(id=kwargs.get('id'))
+            new_address = request.data.get('address')
+            order.address = new_address
+            order.save()
+            return Response({
+                "order": OrderSerializer(order, context=self.get_serializer_context()).data
+            })
+        except e:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, *args, **kwargs):
+        Order.objects.get(id=kwargs.get('id')).delete()
+        return Response(status=status.HTTP_200_OK)
+
+
+class AddOrderAPI(generics.GenericAPIView):
+    serializer_class = OrderSerializer
+    permission_classes = (IsAuthenticated, )
+
+    def post(self, request, *args, **kwargs):
+        new_data = request.data.copy()
+        new_data.update({
+            'user': request.user.id
+        })
+
+        post = Post.objects.get(id=request.data.get('post'))
+        if post.stock == 0:
+            return Response({"error": "Not available"}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = AddOrderSerializer(data=new_data)
+        serializer.is_valid(raise_exception=True)
+
+        post.stock = post.stock - 1
+        post.save()
+
+        order = serializer.save()
+        return Response({
+            "order": OrderSerializer(order, context=self.get_serializer_context()).data
+        })
 
 
 class UserChatsAPI(generics.GenericAPIView):
