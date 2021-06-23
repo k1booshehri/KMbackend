@@ -57,6 +57,17 @@ class GetAllPuppiesTest(TestCase):
             "entry_year": "97"
         })
 
+        respomse = client.post(self.signup_url, {
+            "username": "masih@gmail.com",
+            "email": "masih@gmail.com",
+            "first_name": "masih",
+            "last_name": "bnn",
+            "password": "123456",
+            "phone_number": "534468951",
+            "is_store": True,
+            "store_name": "Book City"
+        })
+
         Post.objects.create(owner=User.objects.get(id=1),
                             title='riazi 1 faramarzi',
                             author='faramarzi',
@@ -68,6 +79,18 @@ class GetAllPuppiesTest(TestCase):
                             status='sell',
                             description='some description',
                             is_active="True")
+
+        Post.objects.create(owner=User.objects.get(id=4),
+                            title='riazi 2 faramarzi',
+                            author='faramarzi',
+                            publisher='gaj',
+                            categories='math$riazi',
+                            price="10000",
+                            status='sell',
+                            description='some description',
+                            is_active="True",
+                            stock=10,
+                            is_from_store=True)
 
         Bid.objects.create(post=Post.objects.get(id=1),
                            owner=User.objects.get(id=2),
@@ -315,6 +338,26 @@ class GetAllPuppiesTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(type(response.json()), list)
+
+    def test_post_order(self):
+        login_owner = self.client.post(self.login_url, {
+            "username": "matin@gmail.com",
+            "password": "123456",
+        })
+
+        post_id = 2
+        response = self.client.post(
+            '/api/order',
+            HTTP_AUTHORIZATION='token ' + login_owner.json()['token'],
+            data={
+                "post": post_id,
+                "address": "this st, that st, the other st"
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['order']['user']['id'], login_owner.data['id'])
+        self.assertEqual(response.data['order']['post']['id'], post_id)
 
 
 class GetMyPostsTest(TestCase):
