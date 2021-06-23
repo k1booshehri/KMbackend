@@ -54,7 +54,7 @@ class OrderAPI(generics.GenericAPIView):
             return Response({
                 "order": OrderSerializer(order, context=self.get_serializer_context()).data
             })
-        except e:
+        except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, *args, **kwargs):
