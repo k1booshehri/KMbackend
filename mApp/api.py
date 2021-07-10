@@ -100,7 +100,7 @@ class MyPostsAPI(generics.ListAPIView):
     def get_queryset(self):
         user = self.request.user
         queryset = Post.objects.all()
-        queryset = queryset.filter(owner=user).order_by('-id')
+        queryset = queryset.filter(owner=user)
         return queryset
 
 
