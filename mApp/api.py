@@ -1,8 +1,9 @@
 from rest_framework import generics, permissions, viewsets
 from rest_framework.response import Response
 from knox.models import AuthToken
-from .serializers import UserSerializer, RegisterSerializer, LoginSerializer, PostSerializer,NotificationSerializer,BookMarkSerializer,GetMarksSerializer,BidUpdateSerializer,StoreSerializer
-from .models import Post,Notifications,Bookmarks,Bid,User
+from .serializers import UserSerializer, RegisterSerializer, LoginSerializer, PostSerializer, NotificationSerializer, \
+    BookMarkSerializer, GetMarksSerializer, BidUpdateSerializer, StoreSerializer
+from .models import Post, Notifications, Bookmarks, Bid, User
 from django.db.models import Q
 import operator
 import functools
@@ -47,7 +48,6 @@ class UserAPI(generics.RetrieveAPIView):
 
 
 class FilterAPI(generics.ListAPIView):
-
     queryset = Post.objects.all()
     serializer_class = PostSerializer
 
@@ -57,7 +57,7 @@ class FilterAPI(generics.ListAPIView):
         mypriceend = self.request.GET.get('priceend', None)
         myprovince = self.request.GET.get('province', None)
         mycity = self.request.GET.get('city', None)
-        storesonly=self.request.GET.get('storesonly',None)
+        storesonly = self.request.GET.get('storesonly', None)
 
         if mypricestart is not None:
             queryset = queryset.filter(price__gt=mypricestart)
@@ -67,7 +67,7 @@ class FilterAPI(generics.ListAPIView):
             queryset = queryset.filter(province=myprovince)
         if mycity is not None:
             queryset = queryset.filter(city=mycity)
-        if storesonly=='true':
+        if storesonly == 'true':
             queryset = queryset.filter(is_from_store=True)
 
         cat = self.request.GET.get('category', None)
@@ -88,50 +88,55 @@ class FilterAPI(generics.ListAPIView):
         sort_by = self.request.GET.get('sort', None)
         if sort_by is not None:
             if sort_by == 'price':
-                queryset = queryset.order_by('-price').reverse()
+                queryset = queryset.order_by('-price').order_by('-id')
 
         return queryset
 
-class MyPostsAPI(generics.ListAPIView):
 
+class MyPostsAPI(generics.ListAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
 
     def get_queryset(self):
-        user=self.request.user
+        user = self.request.user
         queryset = Post.objects.all()
-        queryset = queryset.filter(owner=user)
+        queryset = queryset.filter(owner=user).order_by('-id')
         return queryset
+
 
 class NotificationsAPI(generics.ListAPIView):
     serializer_class = NotificationSerializer
+
     def get_queryset(self):
-        user=self.request.user
+        user = self.request.user
         queryset = Notifications.objects.all()
         queryset = queryset.filter(owner=user)
-        q=copy.copy(queryset)
-        queryset.update(is_seen=True)  
-        return q
+        q = copy.copy(queryset)
+        queryset.update(is_seen=True)
+        return q.order_by('-id')
 
 
 class MakeBookMarkAPI(generics.GenericAPIView):
     serializer_class = BookMarkSerializer
+
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
-        user=self.request.user
-        postid=data['markedpost']
-        bookmark=Bookmarks.objects.create(markedpost=postid,markedby=user)
+        user = self.request.user
+        postid = data['markedpost']
+        bookmark = Bookmarks.objects.create(markedpost=postid, markedby=user)
         return Response({"done"})
 
+
 class GetMarksAPI(generics.ListAPIView):
-    serializer_class =GetMarksSerializer
+    serializer_class = GetMarksSerializer
+
     def get_queryset(self):
-        user=self.request.user
+        user = self.request.user
         queryset = Bookmarks.objects.all()
         queryset = queryset.filter(markedby=user)
-        return queryset
+        return queryset.order_by('-id')
 
 
 class BidUpdateAPI(generics.GenericAPIView):
@@ -141,7 +146,7 @@ class BidUpdateAPI(generics.GenericAPIView):
     serializer_class = BidUpdateSerializer
 
     def put(self, request, *args, **kwargs):
-        bidid=self.request.GET.get('bidid', None)
+        bidid = self.request.GET.get('bidid', None)
         print(bidid)
         b = Bid.objects.get(id=bidid)
         serializer = self.get_serializer(b, data=request.data, partial=True)
@@ -154,28 +159,30 @@ class BidUpdateAPI(generics.GenericAPIView):
 
 class IsMarkedAPI(APIView):
     def get(self, request, format=None):
-        postid=self.request.GET.get('postid', None)
-        user=self.request.user
+        postid = self.request.GET.get('postid', None)
+        user = self.request.user
         queryset = Bookmarks.objects.all()
-        count = len(queryset.filter(markedby=user,markedpost=postid))
-        mybool=False
-        if count>0:
-            mybool=True
+        count = len(queryset.filter(markedby=user, markedpost=postid))
+        mybool = False
+        if count > 0:
+            mybool = True
         return Response(mybool)
+
 
 class DeMarkAPI(APIView):
     def delete(self, request, format=None):
-        postid=self.request.GET.get('postid', None)
-        user=self.request.user
-        snippet = Bookmarks.objects.get(markedby=user,markedpost=postid)
+        postid = self.request.GET.get('postid', None)
+        user = self.request.user
+        snippet = Bookmarks.objects.get(markedby=user, markedpost=postid)
         snippet.delete()
         return Response({"done"})
+
 
 class StoresAPI(APIView):
     serializer_class = StoreSerializer
 
     def get(self, request, id):
         return Response({
-            "store":StoreSerializer(User.objects.get(id=id)).data,
-            "products":PostSerializer(Post.objects.filter(owner=User.objects.get(id=id)),many=True).data
-            })
+            "store": StoreSerializer(User.objects.get(id=id)).data,
+            "products": PostSerializer(Post.objects.filter(owner=User.objects.get(id=id)), many=True).data
+        })
