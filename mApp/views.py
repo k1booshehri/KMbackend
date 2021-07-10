@@ -16,7 +16,7 @@ class GetStoreOrders(generics.GenericAPIView, mixins.ListModelMixin):
 
     def get_queryset(self):
         data = Order.objects.filter(post__owner__id=self.request.user.id)
-        return data
+        return data.order_by('-id')
 
     def get(self, request, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -31,7 +31,7 @@ class GetUserOrders(generics.GenericAPIView, mixins.ListModelMixin):
 
     def get_queryset(self):
         data = Order.objects.filter(user_id=self.request.user)
-        return data
+        return data.order_by('-id')
 
     def get(self, request, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
