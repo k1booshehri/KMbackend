@@ -88,7 +88,9 @@ class FilterAPI(generics.ListAPIView):
         sort_by = self.request.GET.get('sort', None)
         if sort_by is not None:
             if sort_by == 'price':
-                queryset = queryset.order_by('-price').order_by('-id')
+                queryset = queryset.order_by('-price')
+            else:
+                queryset = queryset.order_by('-id')
 
         return queryset
 
