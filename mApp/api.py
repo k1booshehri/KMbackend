@@ -89,8 +89,11 @@ class FilterAPI(generics.ListAPIView):
         if sort_by is not None:
             if sort_by == 'price':
                 queryset = queryset.order_by('-price')
-            else:
+            elif sort_by == 'time':
                 queryset = queryset.order_by('-id')
+
+        else:
+            queryset = queryset.order_by('-id')
 
         return queryset
 
